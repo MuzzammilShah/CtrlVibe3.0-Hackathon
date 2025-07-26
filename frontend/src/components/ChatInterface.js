@@ -142,15 +142,25 @@ const ChatInterface = () => {
     handleInputChange,
     handleSubmit,
     isLoading,
+    error,
   } = useChat({
-    api: '/api/chat',
+    api: 'http://localhost:8000/api/chat',
     initialMessages: [
       {
         id: '1',
-        role: 'system',
-        content: 'You are a helpful AI work assistant called PA Agent. You can help with emails, calendar management, documentation, and code review. Be concise, professional, and helpful.',
+        role: 'assistant',
+        content: 'Hello! I\'m PA Agent, your AI work assistant. I can help you with emails, calendar management, documentation, and code review. What would you like me to help you with today?',
       },
     ],
+    onError: (error) => {
+      console.error('Chat error:', error);
+    },
+    onFinish: (message) => {
+      console.log('Chat finished:', message);
+    },
+    onResponse: (response) => {
+      console.log('Chat response:', response);
+    },
     experimental_onToolCall: async (toolCall, conversations) => {
       const tool = allTools.find(t => t.name === toolCall.name);
       
@@ -242,6 +252,12 @@ const ChatInterface = () => {
         <div style={chatHeaderStyle}>General Assistant Chat</div>
         
         <div style={messageListStyle}>
+          {error && (
+            <div style={{...assistantMessageStyle, backgroundColor: '#ffebee', color: '#c62828'}}>
+              Error: {error.message || error}
+            </div>
+          )}
+          
           {messages
             .filter(m => m.role !== 'system') // Hide system messages
             .map((message) => (
