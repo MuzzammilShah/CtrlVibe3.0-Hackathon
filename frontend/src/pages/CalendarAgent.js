@@ -18,34 +18,80 @@ const CalendarAgent = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
+      setError('');
+      console.log('Fetching calendar events...');
+      
       const data = await calendarService.getEvents();
+      console.log('Calendar events response:', data);
+      
       setEvents(data.events || []);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching events:', err);
-      setError('Failed to fetch calendar events. Make sure you are authenticated.');
+      
+      let errorMessage = 'Failed to fetch calendar events.';
+      if (err.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please re-authenticate with Google.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'Access denied. Please check your Google Calendar permissions.';
+      } else if (err.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please check your internet connection.';
+      } else if (err.response?.data?.detail) {
+        errorMessage = err.response.data.detail;
+      }
+      
+      setError(errorMessage);
       setLoading(false);
     }
   };
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
-    if (!naturalLanguageRequest.trim()) return;
+    if (!naturalLanguageRequest.trim()) {
+      setError('Please enter an event description.');
+      return;
+    }
     
     try {
       setCreatingEvent(true);
       setError('');
       setSuccess('');
+      console.log('Creating calendar event:', naturalLanguageRequest);
       
       const data = await calendarService.createEvent(naturalLanguageRequest);
+      console.log('Event creation response:', data);
       
-      setEvents([...events, data.event]);
-      setSuccess('Event created successfully!');
+      // Add the new event to the list if it was created successfully
+      if (data.event) {
+        setEvents([...events, data.event]);
+        setSuccess(data.message || 'Event created successfully!');
+      } else {
+        setSuccess('Event created successfully!');
+      }
+      
       setNaturalLanguageRequest('');
       setCreatingEvent(false);
+      
+      // Refresh events list to show the new event
+      setTimeout(() => {
+        fetchEvents();
+      }, 1000);
+      
     } catch (err) {
       console.error('Error creating event:', err);
-      setError('Failed to create event. Please try again.');
+      
+      let errorMessage = 'Failed to create event. Please try again.';
+      if (err.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please re-authenticate with Google.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'Access denied. Please check your Google Calendar permissions.';
+      } else if (err.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please try again.';
+      } else if (err.response?.data?.detail) {
+        errorMessage = err.response.data.detail;
+      }
+      
+      setError(errorMessage);
       setCreatingEvent(false);
     }
   };

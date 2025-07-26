@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 import Login from './components/Login';
-import ChatInterface from './components/ChatInterface';
+import SimpleChatInterface from './components/SimpleChatInterface';
+import ErrorBoundary from './components/ErrorBoundary';
 import EmailAgent from './pages/EmailAgent';
-// We'll need to create these components
 import CalendarAgent from './pages/CalendarAgent';
 import DocumentationAgent from './pages/DocumentationAgent';
 import CodeReviewAgent from './pages/CodeReviewAgent';
@@ -50,39 +50,41 @@ function App() {
   };
   
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
-          <Route 
-            path="/auth/callback" 
-            element={
-              <CallbackHandler handleCallback={handleCallback} />
-            } 
-          />
-          <Route 
-            path="/" 
-            element={isAuthenticated ? <ChatInterface /> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/email" 
-            element={isAuthenticated ? <EmailAgent /> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/calendar" 
-            element={isAuthenticated ? <CalendarAgent /> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/docs" 
-            element={isAuthenticated ? <DocumentationAgent /> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/code" 
-            element={isAuthenticated ? <CodeReviewAgent /> : <Navigate to="/login" />} 
-          />
-        </Routes>
-      </div>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
+            <Route 
+              path="/auth/callback" 
+              element={
+                <CallbackHandler handleCallback={handleCallback} />
+              } 
+            />
+            <Route 
+              path="/" 
+              element={isAuthenticated ? <SimpleChatInterface /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/email" 
+              element={isAuthenticated ? <EmailAgent /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/calendar" 
+              element={isAuthenticated ? <CalendarAgent /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/docs" 
+              element={isAuthenticated ? <DocumentationAgent /> : <Navigate to="/login" />} 
+            />
+            <Route 
+              path="/code" 
+              element={isAuthenticated ? <CodeReviewAgent /> : <Navigate to="/login" />} 
+            />
+          </Routes>
+        </div>
+      </Router>
+    </ErrorBoundary>
   );
 }
 
