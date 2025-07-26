@@ -1,6 +1,7 @@
 import React from 'react';
 import { useChat } from '@ai-sdk/react';
 import { allTools } from '../tools';
+import { useNavigate } from 'react-router-dom';
 
 // Styling for chat interface
 const chatContainerStyle = {
@@ -82,7 +83,59 @@ const loadingIndicatorStyle = {
   fontStyle: 'italic',
 };
 
+const agentCardsContainerStyle = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '16px',
+  justifyContent: 'center',
+  margin: '32px auto',
+  maxWidth: '1000px',
+};
+
+const agentCardStyle = {
+  width: '200px',
+  height: '180px',
+  padding: '20px',
+  border: '1px solid #e0e0e0',
+  borderRadius: '8px',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  transition: 'transform 0.2s, box-shadow 0.2s',
+  backgroundColor: 'white',
+  textAlign: 'center',
+};
+
+const agentCardHoverStyle = {
+  transform: 'translateY(-5px)',
+  boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
+};
+
+const agentIconStyle = {
+  fontSize: '36px',
+  marginBottom: '12px',
+};
+
+const agentTitleStyle = {
+  fontWeight: 'bold',
+  marginBottom: '8px',
+};
+
+const agentDescriptionStyle = {
+  fontSize: '0.9rem',
+  color: '#666',
+};
+
+const welcomeStyle = {
+  textAlign: 'center',
+  margin: '32px 0',
+};
+
 const ChatInterface = () => {
+  const navigate = useNavigate();
+  
   const {
     messages,
     input,
@@ -121,41 +174,104 @@ const ChatInterface = () => {
       handleSubmit(e);
     }
   };
+  
+  const agents = [
+    {
+      id: 'email',
+      title: 'Email Assistant',
+      description: 'Manage your inbox, summarize emails, and draft responses',
+      icon: '✉️',
+      path: '/email',
+    },
+    {
+      id: 'calendar',
+      title: 'Calendar Planner',
+      description: 'Schedule meetings and manage your events',
+      icon: '📅',
+      path: '/calendar',
+    },
+    {
+      id: 'docs',
+      title: 'Documentation',
+      description: 'Generate project plans, reports and presentations',
+      icon: '📄',
+      path: '/docs',
+    },
+    {
+      id: 'code',
+      title: 'Code Review',
+      description: 'Get feedback on your code and refactoring suggestions',
+      icon: '💻',
+      path: '/code',
+    },
+  ];
+  
+  const [hoveredAgent, setHoveredAgent] = React.useState(null);
+  
+  const handleAgentClick = (path) => {
+    navigate(path);
+  };
 
   return (
-    <div style={chatContainerStyle}>
-      <div style={chatHeaderStyle}>PA Agent - Work Buddy</div>
-      
-      <div style={messageListStyle}>
-        {messages
-          .filter(m => m.role !== 'system') // Hide system messages
-          .map((message) => (
-            <div
-              key={message.id}
-              style={message.role === 'user' ? userMessageStyle : assistantMessageStyle}
-            >
-              {message.content}
-            </div>
-          ))}
-        
-        {isLoading && (
-          <div style={loadingIndicatorStyle}>PA Agent is thinking...</div>
-        )}
+    <div>
+      <div style={welcomeStyle}>
+        <h1>Welcome to PA Agent - Work Buddy</h1>
+        <p>Select an agent to get started or use the chat below for general assistance</p>
       </div>
       
-      <form onSubmit={handleSubmit} style={inputContainerStyle}>
-        <textarea
-          value={input}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask PA Agent to help with emails, calendar, documents, or code..."
-          style={inputStyle}
-          rows={2}
-        />
-        <button type="submit" style={sendButtonStyle} disabled={isLoading || !input.trim()}>
-          Send
-        </button>
-      </form>
+      <div style={agentCardsContainerStyle}>
+        {agents.map((agent) => (
+          <div
+            key={agent.id}
+            style={{
+              ...agentCardStyle,
+              ...(hoveredAgent === agent.id ? agentCardHoverStyle : {}),
+            }}
+            onMouseEnter={() => setHoveredAgent(agent.id)}
+            onMouseLeave={() => setHoveredAgent(null)}
+            onClick={() => handleAgentClick(agent.path)}
+          >
+            <div style={agentIconStyle}>{agent.icon}</div>
+            <div style={agentTitleStyle}>{agent.title}</div>
+            <div style={agentDescriptionStyle}>{agent.description}</div>
+          </div>
+        ))}
+      </div>
+      
+      <div style={chatContainerStyle}>
+        <div style={chatHeaderStyle}>General Assistant Chat</div>
+        
+        <div style={messageListStyle}>
+          {messages
+            .filter(m => m.role !== 'system') // Hide system messages
+            .map((message) => (
+              <div
+                key={message.id}
+                style={message.role === 'user' ? userMessageStyle : assistantMessageStyle}
+              >
+                {message.content}
+              </div>
+            ))}
+          
+          {isLoading && (
+            <div style={loadingIndicatorStyle}>PA Agent is thinking...</div>
+          )}
+        </div>
+        
+        <form onSubmit={handleSubmit} style={inputContainerStyle}>
+          <textarea
+            value={input}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask PA Agent to help with emails, calendar, documents, or code..."
+            style={inputStyle}
+            rows={2}
+          />
+          <button type="submit" style={sendButtonStyle} disabled={isLoading || !input.trim()}>
+            Send
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

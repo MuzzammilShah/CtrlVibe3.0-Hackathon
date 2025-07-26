@@ -4,8 +4,12 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 import os
+import pathlib
 
 router = APIRouter()
+
+# Path to client secret file
+CLIENT_SECRET_FILE = os.path.join(pathlib.Path(__file__).parent.parent, "client_secret.json")
 
 # Google OAuth2 setup
 SCOPES = [
@@ -24,7 +28,7 @@ oauth2_scheme = OAuth2AuthorizationCodeBearer(
 async def login_url():
     """Generate Google OAuth login URL."""
     flow = Flow.from_client_secrets_file(
-        "client_secret.json",
+        CLIENT_SECRET_FILE,
         scopes=SCOPES,
         redirect_uri=os.getenv("REDIRECT_URI")
     )
@@ -41,7 +45,7 @@ async def login_url():
 async def auth_callback(code: str):
     """Process OAuth callback and exchange code for tokens."""
     flow = Flow.from_client_secrets_file(
-        "client_secret.json",
+        CLIENT_SECRET_FILE,
         scopes=SCOPES,
         redirect_uri=os.getenv("REDIRECT_URI")
     )
