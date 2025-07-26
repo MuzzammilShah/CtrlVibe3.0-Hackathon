@@ -11,21 +11,21 @@ router = APIRouter()
 
 # Configure Gemini model
 gemini_model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
+    model_name="gemini-2.0-flash",
     generation_config={
         "temperature": 0.2,
         "top_p": 0.95,
         "top_k": 40,
-        "max_output_tokens": 8192,
+        "max_output_tokens": 2048,
     }
 )
 
 @router.get("/unread")
-async def get_unread_emails(user_info = Depends(get_current_user)):
+async def get_unread_emails(user_data = Depends(get_current_user)):
     """Fetch unread emails and provide summaries."""
     try:
         credentials = Credentials(
-            token=user_info["access_token"],
+            token=user_data["access_token"],
             refresh_token=None,
             token_uri="https://oauth2.googleapis.com/token",
             client_id=os.getenv("GOOGLE_CLIENT_ID"),
@@ -107,12 +107,12 @@ async def get_unread_emails(user_info = Depends(get_current_user)):
 async def draft_email_reply(
     message_id: str,
     tone: str = "professional",
-    user_info = Depends(get_current_user)
+    user_data = Depends(get_current_user)
 ):
     """Draft a reply to an email using Gemini."""
     try:
         credentials = Credentials(
-            token=user_info["access_token"],
+            token=user_data["access_token"],
             refresh_token=None,
             token_uri="https://oauth2.googleapis.com/token",
             client_id=os.getenv("GOOGLE_CLIENT_ID"),
@@ -178,12 +178,12 @@ async def send_email(
     to: str,
     subject: str,
     body: str,
-    user_info = Depends(get_current_user)
+    user_data = Depends(get_current_user)
 ):
     """Send an email via Gmail API."""
     try:
         credentials = Credentials(
-            token=user_info["access_token"],
+            token=user_data["access_token"],
             refresh_token=None,
             token_uri="https://oauth2.googleapis.com/token",
             client_id=os.getenv("GOOGLE_CLIENT_ID"),

@@ -27,13 +27,14 @@ async def root():
     return {"status": "ok", "message": "PA Agent API is running"}
 
 # Import and include routers
-from routers import auth, email, calendar, documentation, code_review
+from routers import auth, email, calendar, documentation, code_review, chat
 
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(email.router, prefix="/email", tags=["Email"])
 app.include_router(calendar.router, prefix="/calendar", tags=["Calendar"])
 app.include_router(documentation.router, prefix="/docs", tags=["Documentation"])
 app.include_router(code_review.router, prefix="/code", tags=["Code Review"])
+app.include_router(chat.router, prefix="/api", tags=["Chat"])
 
 if __name__ == "__main__":
     import uvicorn

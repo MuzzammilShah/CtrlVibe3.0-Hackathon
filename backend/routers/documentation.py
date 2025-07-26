@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Request
 import google.generativeai as genai
 import os
 
@@ -6,24 +6,26 @@ router = APIRouter()
 
 # Configure Gemini model
 gemini_model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
+    model_name="gemini-2.0-flash",
     generation_config={
         "temperature": 0.3,
         "top_p": 0.95,
         "top_k": 40,
-        "max_output_tokens": 8192,
+        "max_output_tokens": 2048,
     }
 )
 
 @router.post("/project-plan")
-async def generate_project_plan(
-    project_title: str,
-    project_description: str,
-    timeline_weeks: int = 4,
-    team_size: int = 3
-):
+async def generate_project_plan(request: Request):
     """Generate a project plan from a brief description."""
     try:
+        # Parse request body
+        body = await request.json()
+        project_title = body.get("project_title", "Untitled Project")
+        project_description = body.get("project_description", "No description provided")
+        timeline_weeks = body.get("timeline_weeks", 4)
+        team_size = body.get("team_size", 3)
+        
         prompt = f"""
         Create a comprehensive project plan for the following project:
         
@@ -47,7 +49,10 @@ async def generate_project_plan(
         response = gemini_model.generate_content(prompt)
         plan = response.text
         
-        return {"project_plan": plan}
+        return {
+            "content": plan,
+            "project_plan": plan  # Keep both for compatibility
+        }
         
     except Exception as e:
         raise HTTPException(
@@ -56,15 +61,13 @@ async def generate_project_plan(
         )
 
 @router.post("/report-template")
-async def generate_report_template(
-    report_type: str,
-    report_topic: str,
-    sections: list = None
-):
+async def generate_report_template(request: Request):
     """Generate a report template with structure and placeholders."""
     try:
-        if sections is None:
-            sections = ["Introduction", "Methodology", "Findings", "Recommendations", "Conclusion"]
+        body = await request.json()
+        report_type = body.get("report_type", "General")
+        report_topic = body.get("report_topic", "Sample Topic")
+        sections = body.get("sections", ["Introduction", "Methodology", "Findings", "Recommendations", "Conclusion"])
         
         section_text = "\n".join([f"- {section}" for section in sections])
         
@@ -85,7 +88,10 @@ async def generate_report_template(
         response = gemini_model.generate_content(prompt)
         template = response.text
         
-        return {"report_template": template}
+        return {
+            "content": template,
+            "report_template": template  # Keep both for compatibility
+        }
         
     except Exception as e:
         raise HTTPException(
@@ -94,13 +100,14 @@ async def generate_report_template(
         )
 
 @router.post("/presentation-outline")
-async def generate_presentation_outline(
-    presentation_title: str,
-    audience: str,
-    duration_minutes: int = 15
-):
+async def generate_presentation_outline(request: Request):
     """Generate a presentation outline with slide suggestions."""
     try:
+        body = await request.json()
+        presentation_title = body.get("presentation_title", "Sample Presentation")
+        audience = body.get("audience", "General Audience")
+        duration_minutes = body.get("duration_minutes", 15)
+        
         prompt = f"""
         Create an outline for a {duration_minutes}-minute presentation titled "{presentation_title}" for an audience of {audience}.
         
@@ -116,7 +123,10 @@ async def generate_presentation_outline(
         response = gemini_model.generate_content(prompt)
         outline = response.text
         
-        return {"presentation_outline": outline}
+        return {
+            "content": outline,
+            "presentation_outline": outline  # Keep both for compatibility
+        }
         
     except Exception as e:
         raise HTTPException(

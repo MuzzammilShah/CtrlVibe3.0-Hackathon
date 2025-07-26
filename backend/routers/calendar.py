@@ -10,21 +10,21 @@ router = APIRouter()
 
 # Configure Gemini model
 gemini_model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
+    model_name="gemini-2.0-flash",
     generation_config={
         "temperature": 0.2,
         "top_p": 0.95,
         "top_k": 40,
-        "max_output_tokens": 8192,
+        "max_output_tokens": 2048,
     }
 )
 
 @router.get("/events")
-async def get_calendar_events(user_info = Depends(get_current_user)):
+async def get_calendar_events(user_data = Depends(get_current_user)):
     """Fetch upcoming calendar events."""
     try:
         credentials = Credentials(
-            token=user_info["access_token"],
+            token=user_data["access_token"],
             refresh_token=None,
             token_uri="https://oauth2.googleapis.com/token",
             client_id=os.getenv("GOOGLE_CLIENT_ID"),
@@ -75,7 +75,7 @@ async def get_calendar_events(user_info = Depends(get_current_user)):
 @router.post("/create-event")
 async def create_calendar_event(
     natural_language_request: str,
-    user_info = Depends(get_current_user)
+    user_data = Depends(get_current_user)
 ):
     """Create a calendar event from natural language description."""
     try:
@@ -106,7 +106,7 @@ async def create_calendar_event(
         # For a production app, properly parse the dates and times
         
         credentials = Credentials(
-            token=user_info["access_token"],
+            token=user_data["access_token"],
             refresh_token=None,
             token_uri="https://oauth2.googleapis.com/token",
             client_id=os.getenv("GOOGLE_CLIENT_ID"),
@@ -115,21 +115,57 @@ async def create_calendar_event(
         
         service = build("calendar", "v3", credentials=credentials)
         
-        # Create a sample event (for demonstration purposes)
-        # In a production app, use the parsed data from Gemini
-        event = {
-            "summary": "Sample Event",
-            "location": "Virtual",
-            "description": "Created by PA Agent",
-            "start": {
-                "dateTime": "2023-08-01T10:00:00",
-                "timeZone": "America/Los_Angeles",
-            },
-            "end": {
-                "dateTime": "2023-08-01T11:00:00",
-                "timeZone": "America/Los_Angeles",
-            },
-        }
+        # Parse the JSON response from Gemini
+        try:
+            import json
+            # Clean the response to extract JSON
+            json_str = parsed_data.strip()
+            if json_str.startswith("```json"):
+                json_str = json_str[7:]
+            if json_str.endswith("```"):
+                json_str = json_str[:-3]
+            
+            event_data = json.loads(json_str.strip())
+            
+            # Create proper datetime strings
+            start_datetime = f"{event_data['start_date']}T{event_data['start_time']}:00"
+            end_datetime = f"{event_data['end_date']}T{event_data['end_time']}:00"
+            
+            # Create the event
+            event = {
+                "summary": event_data.get("summary", "PA Agent Event"),
+                "location": event_data.get("location", ""),
+                "description": event_data.get("description", "Created by PA Agent"),
+                "start": {
+                    "dateTime": start_datetime,
+                    "timeZone": "America/Los_Angeles",
+                },
+                "end": {
+                    "dateTime": end_datetime,
+                    "timeZone": "America/Los_Angeles",
+                },
+            }
+            
+        except (json.JSONDecodeError, KeyError) as e:
+            # Fallback to a default event if parsing fails
+            import datetime
+            now = datetime.datetime.now()
+            start_time = now.replace(hour=10, minute=0, second=0, microsecond=0)
+            end_time = start_time.replace(hour=11)
+            
+            event = {
+                "summary": f"Event from: {natural_language_request}",
+                "location": "Virtual",
+                "description": f"Created by PA Agent from request: {natural_language_request}",
+                "start": {
+                    "dateTime": start_time.isoformat(),
+                    "timeZone": "America/Los_Angeles",
+                },
+                "end": {
+                    "dateTime": end_time.isoformat(),
+                    "timeZone": "America/Los_Angeles",
+                },
+            }
         
         created_event = service.events().insert(
             calendarId="primary",
