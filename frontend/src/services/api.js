@@ -5,6 +5,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 // Create axios instance with default config
 const api = axios.create({
   baseURL: API_URL,
+  timeout: 30000, // 30 second timeout
   headers: {
     'Content-Type': 'application/json',
   },
@@ -58,7 +59,7 @@ export const calendarService = {
   },
   createEvent: async (naturalLanguageRequest) => {
     const response = await api.post('/calendar/create-event', { 
-      natural_language_request: naturalLanguageRequest 
+      description: naturalLanguageRequest 
     });
     return response.data;
   },

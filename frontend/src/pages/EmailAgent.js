@@ -18,12 +18,29 @@ const EmailAgent = () => {
   const fetchUnreadEmails = async () => {
     try {
       setLoading(true);
+      setError('');
+      console.log('Fetching unread emails...');
+      
       const data = await emailService.getUnreadEmails();
+      console.log('Email response:', data);
+      
       setUnreadEmails(data.emails || []);
       setLoading(false);
     } catch (err) {
       console.error('Error fetching emails:', err);
-      setError('Failed to fetch emails. Make sure you are authenticated.');
+      
+      let errorMessage = 'Failed to fetch emails.';
+      if (err.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please re-authenticate with Google.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'Access denied. Please check your Gmail permissions.';
+      } else if (err.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please check your internet connection.';
+      } else if (err.response?.data?.detail) {
+        errorMessage = err.response.data.detail;
+      }
+      
+      setError(errorMessage);
       setLoading(false);
     }
   };
@@ -35,16 +52,40 @@ const EmailAgent = () => {
   };
 
   const handleGenerateReply = async () => {
-    if (!selectedEmail) return;
+    if (!selectedEmail) {
+      setError('Please select an email first.');
+      return;
+    }
     
     try {
       setReplying(true);
+      setError('');
+      console.log('Generating reply for email:', selectedEmail.id);
+      
       const data = await emailService.draftReply(selectedEmail.id);
-      setDraftReply(data.reply || '');
+      console.log('Reply generation response:', data);
+      
+      setDraftReply(data.reply || data.draft_reply || '');
       setReplying(false);
+      
+      if (!data.reply && !data.draft_reply) {
+        setError('No reply was generated. Please try again.');
+      }
     } catch (err) {
       console.error('Error generating reply:', err);
-      setError('Failed to generate reply.');
+      
+      let errorMessage = 'Failed to generate reply.';
+      if (err.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please re-authenticate with Google.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'Access denied. Please check your Gmail permissions.';
+      } else if (err.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please try again.';
+      } else if (err.response?.data?.detail) {
+        errorMessage = err.response.data.detail;
+      }
+      
+      setError(errorMessage);
       setReplying(false);
     }
   };
