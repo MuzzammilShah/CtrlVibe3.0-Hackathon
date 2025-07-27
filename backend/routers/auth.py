@@ -11,6 +11,10 @@ router = APIRouter()
 # Path to client secret file
 CLIENT_SECRET_FILE = os.path.join(pathlib.Path(__file__).parent.parent, "client_secret.json")
 
+# Store processed codes to prevent duplicate requests
+processed_codes = set()
+processed_results = {}
+
 # Google OAuth2 setup
 SCOPES = [
     "openid",
@@ -59,7 +63,25 @@ async def auth_callback(code: str, scope: str = None):
     """Process OAuth callback and exchange code for tokens."""
     try:
         print(f"OAuth callback received with code: {code[:20]}...")
-        print(f"Received scope: {scope}")
+        
+        # Check if this code has already been processed
+        if code in processed_codes:
+            print(f"Code already processed, returning cached result")
+            # Return the cached successful result instead of an error
+            if code in processed_results:
+                return processed_results[code]
+            else:
+                # Fallback if we somehow lost the result
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Authorization code has already been used and result is not available"
+                )
+        
+        # Add code to processed set
+        processed_codes.add(code)
+        
+        if scope:
+            print(f"Received scope: {scope}")
         
         # Create flow with the exact same configuration as login
         flow = Flow.from_client_secrets_file(
@@ -70,39 +92,65 @@ async def auth_callback(code: str, scope: str = None):
         
         print(f"Flow created, fetching token...")
         
-        # Fetch token without strict scope validation
-        flow.fetch_token(
-            code=code,
-            # Don't validate scopes strictly
-        )
-        
+        # Fetch token
+        flow.fetch_token(code=code)
         credentials = flow.credentials
         
-        print(f"Token received: {credentials.token[:20] if credentials.token else 'None'}...")
+        print(f"Token received successfully")
         
-        # Test the credentials by making a simple API call
+        # Verify the credentials work by making a simple API call
         try:
             from googleapiclient.discovery import build
             service = build("oauth2", "v2", credentials=credentials)
             user_info = service.userinfo().get().execute()
             print(f"User authenticated: {user_info.get('email', 'Unknown')}")
-        except Exception as test_error:
-            print(f"Warning: Could not verify credentials: {test_error}")
-        
-        return {
-            "access_token": credentials.token,
-            "refresh_token": credentials.refresh_token,
-            "token_uri": credentials.token_uri,
-            "client_id": credentials.client_id,
-            "client_secret": credentials.client_secret,
-            "scopes": credentials.scopes
-        }
+            
+            result = {
+                "status": "success",
+                "access_token": credentials.token,
+                "refresh_token": credentials.refresh_token,
+                "token_uri": credentials.token_uri,
+                "client_id": credentials.client_id,
+                "client_secret": credentials.client_secret,
+                "scopes": credentials.scopes,
+                "user_info": user_info
+            }
+            
+            # Cache the successful result
+            processed_results[code] = result
+            return result
+        except Exception as verify_error:
+            print(f"Error verifying credentials: {verify_error}")
+            # Still return tokens even if verification fails
+            result = {
+                "status": "success",
+                "access_token": credentials.token,
+                "refresh_token": credentials.refresh_token,
+                "token_uri": credentials.token_uri,
+                "client_id": credentials.client_id,
+                "client_secret": credentials.client_secret,
+                "scopes": credentials.scopes,
+                "user_info": None
+            }
+            
+            # Cache the successful result
+            processed_results[code] = result
+            return result
+            
+    except HTTPException:
+        # Re-raise HTTP exceptions (like duplicate code)
+        raise
     except Exception as e:
         print(f"OAuth callback error: {str(e)}")
         import traceback
         traceback.print_exc()
+        
+        # Remove code from processed set if there was an error
+        processed_codes.discard(code)
+        processed_results.pop(code, None)
+        
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Error processing OAuth callback: {str(e)}"
         )
 
@@ -138,6 +186,30 @@ async def get_current_user(credentials: HTTPBearer = Depends(oauth2_scheme)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid authentication credentials: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+
+@router.post("/logout")
+async def logout():
+    """Logout endpoint - mainly for frontend to clear session."""
+    return {
+        "status": "success",
+        "message": "Logged out successfully"
+    }
+
+@router.get("/verify")
+async def verify_auth(user_data = Depends(get_current_user)):
+    """Verify if the current token is valid."""
+    try:
+        return {
+            "status": "authenticated",
+            "user_email": user_data.get("user_info", {}).get("email", "Unknown"),
+            "user_name": user_data.get("user_info", {}).get("name", "Unknown"),
+            "message": "Authentication verified"
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token"
         )
 
 @router.get("/test-auth")

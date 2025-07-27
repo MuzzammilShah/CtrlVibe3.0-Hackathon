@@ -23,6 +23,23 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Add response interceptor to handle auth errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token is invalid or expired
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('userInfo');
+      // Redirect to login if not already there
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Authentication API
 export const authService = {
   getLoginUrl: async () => {
@@ -31,6 +48,20 @@ export const authService = {
   },
   handleCallback: async (code) => {
     const response = await api.get(`/auth/callback?code=${code}`);
+    return response.data;
+  },
+  logout: async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (error) {
+      console.log('Logout API call failed, but continuing with local cleanup');
+    }
+    // Clear local storage regardless of API response
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('userInfo');
+  },
+  verifyAuth: async () => {
+    const response = await api.get('/auth/verify');
     return response.data;
   },
 };
