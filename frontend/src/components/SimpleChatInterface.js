@@ -2,144 +2,207 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MarkdownRenderer } from '../utils/markdown';
 
-// Styling for chat interface - matching original ChatInterface
+// Modern styling for chat interface
 const chatContainerStyle = {
   display: 'flex',
   flexDirection: 'column',
-  height: 'calc(100vh - 200px)',
+  height: 'calc(100vh - 120px)',
   width: '100%',
-  maxWidth: '800px',
-  margin: '0 auto',
-  border: '1px solid #e0e0e0',
-  borderRadius: '8px',
+  maxWidth: '900px',
+  margin: '2rem auto',
+  background: 'white',
+  borderRadius: '1.5rem',
   overflow: 'hidden',
+  boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+  border: '1px solid #f1f5f9',
 };
 
 const chatHeaderStyle = {
-  padding: '16px',
-  backgroundColor: '#f5f5f5',
-  borderBottom: '1px solid #e0e0e0',
-  fontWeight: 'bold',
+  padding: '1.5rem 2rem',
+  background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+  borderBottom: '1px solid #e2e8f0',
+  fontWeight: '600',
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
+  color: '#1e293b',
+  fontSize: '1.125rem',
 };
 
 const messageListStyle = {
   flex: 1,
   overflowY: 'auto',
-  padding: '16px',
+  padding: '2rem',
   display: 'flex',
   flexDirection: 'column',
-  gap: '16px',
+  gap: '1.5rem',
+  backgroundColor: '#fafafa',
 };
 
 const messageStyle = {
-  padding: '12px 16px',
-  borderRadius: '8px',
-  maxWidth: '80%',
+  padding: '1rem 1.5rem',
+  borderRadius: '1.5rem',
+  maxWidth: '85%',
+  fontSize: '0.95rem',
+  lineHeight: '1.6',
+  position: 'relative',
 };
 
 const userMessageStyle = {
   ...messageStyle,
   alignSelf: 'flex-end',
-  backgroundColor: '#007bff',
+  background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
   color: 'white',
+  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
 };
 
 const assistantMessageStyle = {
   ...messageStyle,
   alignSelf: 'flex-start',
-  backgroundColor: '#f8f9fa',
-  border: '1px solid #e9ecef',
+  backgroundColor: 'white',
+  border: '1px solid #e2e8f0',
+  color: '#374151',
+  boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
 };
 
 const inputContainerStyle = {
-  padding: '16px',
-  borderTop: '1px solid #e0e0e0',
-  backgroundColor: '#fff',
+  padding: '1.5rem 2rem',
+  borderTop: '1px solid #e2e8f0',
+  backgroundColor: 'white',
 };
 
 const inputFormStyle = {
   display: 'flex',
-  gap: '8px',
+  gap: '1rem',
+  alignItems: 'flex-end',
 };
 
 const inputStyle = {
   flex: 1,
-  padding: '12px',
-  border: '1px solid #ddd',
-  borderRadius: '4px',
-  fontSize: '14px',
+  padding: '1rem 1.25rem',
+  border: '2px solid #e2e8f0',
+  borderRadius: '1.25rem',
+  fontSize: '0.95rem',
+  fontFamily: 'inherit',
+  resize: 'none',
+  minHeight: '3rem',
+  maxHeight: '8rem',
+  lineHeight: '1.5',
+  transition: 'all 0.2s ease',
+  outline: 'none',
+};
+
+const inputFocusStyle = {
+  borderColor: '#0ea5e9',
+  boxShadow: '0 0 0 3px rgba(14, 165, 233, 0.1)',
+  backgroundColor: '#f0f9ff',
 };
 
 const buttonStyle = {
-  padding: '12px 24px',
-  backgroundColor: '#007bff',
+  padding: '1rem 1.5rem',
+  background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
   color: 'white',
   border: 'none',
-  borderRadius: '4px',
+  borderRadius: '1.25rem',
   cursor: 'pointer',
-  fontSize: '14px',
-  fontWeight: 'bold',
+  fontSize: '0.875rem',
+  fontWeight: '600',
+  fontFamily: 'inherit',
+  transition: 'all 0.2s ease',
+  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+  whiteSpace: 'nowrap',
+};
+
+const buttonHoverStyle = {
+  background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+  transform: 'translateY(-1px)',
+  boxShadow: '0 6px 8px -1px rgb(0 0 0 / 0.15)',
 };
 
 const disabledButtonStyle = {
   ...buttonStyle,
-  backgroundColor: '#6c757d',
+  background: '#94a3b8',
   cursor: 'not-allowed',
+  transform: 'none',
+  boxShadow: 'none',
 };
 
-// Original card-style navigation from ChatInterface
+// Modern welcome section styling
 const welcomeStyle = {
   textAlign: 'center',
-  margin: '32px auto',
-  maxWidth: '800px',
+  margin: '2rem auto 3rem',
+  maxWidth: '900px',
+  padding: '0 2rem',
+};
+
+const welcomeTitleStyle = {
+  fontSize: 'clamp(2rem, 4vw, 2.5rem)',
+  fontWeight: '700',
+  marginBottom: '1rem',
+  color: '#1e293b',
+  background: 'linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+};
+
+const welcomeSubtitleStyle = {
+  fontSize: 'clamp(1rem, 2vw, 1.125rem)',
+  color: '#64748b',
+  lineHeight: '1.6',
+  marginBottom: '2rem',
 };
 
 const agentCardsContainerStyle = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: '16px',
-  justifyContent: 'center',
-  margin: '32px auto',
-  maxWidth: '1000px',
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+  gap: '1.5rem',
+  margin: '3rem auto',
+  maxWidth: '1100px',
+  padding: '0 2rem',
 };
 
 const agentCardStyle = {
-  width: '200px',
-  height: '180px',
-  padding: '20px',
-  border: '1px solid #e0e0e0',
-  borderRadius: '8px',
+  background: 'white',
+  borderRadius: '1.5rem',
+  padding: '2rem',
+  border: '1px solid #f1f5f9',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
   cursor: 'pointer',
-  transition: 'transform 0.2s, box-shadow 0.2s',
-  backgroundColor: 'white',
+  transition: 'all 0.3s ease',
   textAlign: 'center',
+  minHeight: '200px',
+  position: 'relative',
+  overflow: 'hidden',
+  boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
 };
 
 const agentCardHoverStyle = {
-  transform: 'translateY(-5px)',
-  boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
+  transform: 'translateY(-4px)',
+  boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+  borderColor: '#e0f2fe',
 };
 
 const agentIconStyle = {
-  fontSize: '36px',
-  marginBottom: '12px',
+  fontSize: '3rem',
+  marginBottom: '1.5rem',
+  display: 'block',
 };
 
 const agentTitleStyle = {
-  fontWeight: 'bold',
-  marginBottom: '8px',
+  fontWeight: '600',
+  marginBottom: '0.75rem',
+  color: '#1e293b',
+  fontSize: '1.25rem',
 };
 
 const agentDescriptionStyle = {
-  fontSize: '0.9rem',
-  color: '#666',
+  fontSize: '0.95rem',
+  color: '#64748b',
+  lineHeight: '1.5',
 };
 
 const SimpleChatInterface = () => {
@@ -148,40 +211,42 @@ const SimpleChatInterface = () => {
     {
       id: '1',
       role: 'assistant',
-      content: 'Hello! I\'m PA Agent, your AI work assistant. I can help you with emails, calendar management, documentation, and code review. What would you like me to help you with today?',
+      content: 'Welcome to PA Agent! 🎉 I\'m your intelligent AI work assistant, ready to help you with emails, calendar management, documentation, and code review. Choose a specialized agent below or start a conversation with me directly.',
     }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [hoveredAgent, setHoveredAgent] = useState(null);
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const [isButtonHovered, setIsButtonHovered] = useState(false);
   
   const agents = [
     {
       id: 'email',
       title: 'Email Assistant',
-      description: 'Manage your inbox, summarize emails, and draft responses',
+      description: 'Manage your inbox, summarize emails, and draft intelligent responses',
       icon: '✉️',
       path: '/email',
     },
     {
       id: 'calendar',
       title: 'Calendar Planner',
-      description: 'Schedule meetings and manage your events',
+      description: 'Schedule meetings and manage your events with natural language',
       icon: '📅',
       path: '/calendar',
     },
     {
       id: 'docs',
       title: 'Documentation',
-      description: 'Generate project plans, reports and presentations',
+      description: 'Generate professional project plans, reports and presentations',
       icon: '📄',
       path: '/docs',
     },
     {
       id: 'code',
       title: 'Code Review',
-      description: 'Get feedback on your code and refactoring suggestions',
+      description: 'Get intelligent feedback on your code and refactoring suggestions',
       icon: '💻',
       path: '/code',
     },
@@ -259,12 +324,16 @@ const SimpleChatInterface = () => {
   };
 
   return (
-    <div>
+    <div style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)', minHeight: '100vh' }}>
+      {/* Modern Welcome Section */}
       <div style={welcomeStyle}>
-        <h1>Welcome to PA Agent - Work Buddy</h1>
-        <p>Select an agent to get started or use the chat below for general assistance</p>
+        <h1 style={welcomeTitleStyle}>Welcome to PA Agent</h1>
+        <p style={welcomeSubtitleStyle}>
+          Choose a specialized AI agent below or start a conversation for general assistance
+        </p>
       </div>
       
+      {/* Modern Agent Cards */}
       <div style={agentCardsContainerStyle}>
         {agents.map((agent) => (
           <div
@@ -284,12 +353,34 @@ const SimpleChatInterface = () => {
         ))}
       </div>
 
-      {/* Chat interface */}
+      {/* Modern Chat Interface */}
       <div style={chatContainerStyle}>
         <div style={chatHeaderStyle}>
-          <span>PA Agent - General Assistant</span>
-          <span style={{ fontSize: '12px', color: '#666' }}>
-            {isLoading ? 'Thinking...' : 'Ready'}
+          <span>💬 General Assistant</span>
+          <span style={{ 
+            fontSize: '0.875rem', 
+            color: '#64748b',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            {isLoading ? (
+              <>
+                <div className="loading-spinner" style={{ width: '16px', height: '16px', borderWidth: '2px' }}></div>
+                Thinking...
+              </>
+            ) : (
+              <>
+                <span style={{ 
+                  width: '8px', 
+                  height: '8px', 
+                  borderRadius: '50%', 
+                  backgroundColor: '#10b981',
+                  display: 'inline-block'
+                }}></span>
+                Ready
+              </>
+            )}
           </span>
         </div>
 
@@ -301,8 +392,15 @@ const SimpleChatInterface = () => {
                 message.role === 'user' ? userMessageStyle : assistantMessageStyle
               }
             >
-              <strong>{message.role === 'user' ? 'You' : 'PA Agent'}:</strong>
-              <div style={{ marginTop: '4px' }}>
+              <div style={{ 
+                fontWeight: '600', 
+                marginBottom: '0.5rem',
+                fontSize: '0.875rem',
+                opacity: 0.8
+              }}>
+                {message.role === 'user' ? 'You' : 'PA Agent'}
+              </div>
+              <div>
                 {message.role === 'user' ? (
                   message.content
                 ) : (
@@ -314,9 +412,23 @@ const SimpleChatInterface = () => {
           
           {isLoading && (
             <div style={assistantMessageStyle}>
-              <strong>PA Agent:</strong>
-              <div style={{ marginTop: '4px' }}>
-                <em>Thinking...</em>
+              <div style={{ 
+                fontWeight: '600', 
+                marginBottom: '0.5rem',
+                fontSize: '0.875rem',
+                opacity: 0.8
+              }}>
+                PA Agent
+              </div>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.75rem',
+                color: '#64748b',
+                fontStyle: 'italic'
+              }}>
+                <div className="loading-spinner" style={{ width: '20px', height: '20px', borderWidth: '2px' }}></div>
+                Processing your request...
               </div>
             </div>
           )}
@@ -325,27 +437,49 @@ const SimpleChatInterface = () => {
         <div style={inputContainerStyle}>
           {error && (
             <div style={{ 
-              color: 'red', 
-              marginBottom: '8px', 
-              fontSize: '12px' 
+              color: '#dc2626',
+              backgroundColor: '#fef2f2',
+              border: '1px solid #fecaca',
+              padding: '0.75rem',
+              borderRadius: '0.75rem',
+              marginBottom: '1rem',
+              fontSize: '0.875rem',
+              fontWeight: '500'
             }}>
               {error}
             </div>
           )}
           
           <form onSubmit={handleSubmit} style={inputFormStyle}>
-            <input
-              type="text"
+            <textarea
               value={input}
               onChange={handleInputChange}
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setIsInputFocused(false)}
               placeholder="Ask me anything about your work..."
-              style={inputStyle}
+              style={{
+                ...inputStyle,
+                ...(isInputFocused ? inputFocusStyle : {})
+              }}
               disabled={isLoading}
+              rows={1}
+              onInput={(e) => {
+                e.target.style.height = 'auto';
+                e.target.style.height = Math.min(e.target.scrollHeight, 128) + 'px';
+              }}
             />
             <button
               type="submit"
               disabled={isLoading || !input.trim()}
-              style={isLoading || !input.trim() ? disabledButtonStyle : buttonStyle}
+              style={
+                isLoading || !input.trim() 
+                  ? disabledButtonStyle 
+                  : isButtonHovered 
+                    ? { ...buttonStyle, ...buttonHoverStyle }
+                    : buttonStyle
+              }
+              onMouseEnter={() => setIsButtonHovered(true)}
+              onMouseLeave={() => setIsButtonHovered(false)}
             >
               {isLoading ? 'Sending...' : 'Send'}
             </button>

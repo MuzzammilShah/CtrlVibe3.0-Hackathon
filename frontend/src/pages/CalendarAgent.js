@@ -100,88 +100,183 @@ const CalendarAgent = () => {
     navigate('/');
   };
 
-  // Styles
+  // Modern Styles
   const containerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    height: 'calc(100vh - 60px)',
-    padding: '20px',
-    maxWidth: '1200px',
-    margin: '0 auto',
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+    padding: '2rem',
   };
 
   const headerStyle = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '20px',
+    marginBottom: '2rem',
+    background: 'white',
+    padding: '1.5rem 2rem',
+    borderRadius: '1.5rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
+  };
+
+  const titleStyle = {
+    fontSize: '1.75rem',
+    fontWeight: '700',
+    color: '#1e293b',
+    margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
   };
 
   const contentStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '20px',
+    gap: '2rem',
+    maxWidth: '1200px',
+    margin: '0 auto',
   };
 
   const formStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '10px',
-    backgroundColor: '#f9f9f9',
-    padding: '20px',
-    borderRadius: '8px',
+    background: 'white',
+    borderRadius: '1.5rem',
+    padding: '2rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
+  };
+
+  const formHeaderStyle = {
+    marginBottom: '1.5rem',
+  };
+
+  const formTitleStyle = {
+    fontSize: '1.5rem',
+    fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: '0.75rem',
+  };
+
+  const formDescriptionStyle = {
+    color: '#64748b',
+    lineHeight: '1.6',
+    marginBottom: '0.5rem',
   };
 
   const inputStyle = {
-    padding: '10px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
+    width: '100%',
+    padding: '1rem 1.25rem',
+    borderRadius: '1rem',
+    border: '2px solid #e2e8f0',
     fontFamily: 'inherit',
-  };
-
-  const buttonStyle = {
-    padding: '10px 16px',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#007bff',
-    color: 'white',
-    cursor: 'pointer',
     fontSize: '1rem',
+    transition: 'all 0.2s ease',
+    outline: 'none',
+    marginBottom: '1.5rem',
   };
 
-  const secondaryButtonStyle = {
-    padding: '8px 16px',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#6c757d',
-    color: 'white',
-    cursor: 'pointer',
+  const inputFocusStyle = {
+    borderColor: '#0ea5e9',
+    boxShadow: '0 0 0 3px rgba(14, 165, 233, 0.1)',
+    backgroundColor: '#f0f9ff',
+  };
+
+  const eventListContainerStyle = {
+    background: 'white',
+    borderRadius: '1.5rem',
+    padding: '2rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
+  };
+
+  const eventListHeaderStyle = {
+    fontSize: '1.5rem',
+    fontWeight: '600',
+    color: '#1e293b',
+    marginBottom: '1.5rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
   };
 
   const eventListStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
+    gap: '1rem',
   };
 
   const eventItemStyle = {
-    padding: '15px',
-    borderRadius: '8px',
-    border: '1px solid #e0e0e0',
-    backgroundColor: 'white',
+    padding: '1.5rem',
+    borderRadius: '1rem',
+    border: '1px solid #e2e8f0',
+    background: 'linear-gradient(135deg, #fafafa 0%, #f8fafc 100%)',
+    transition: 'all 0.2s ease',
+  };
+
+  const eventItemHoverStyle = {
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+    transform: 'translateY(-1px)',
   };
 
   const eventTitleStyle = {
-    fontWeight: 'bold',
-    fontSize: '1.1rem',
-    marginBottom: '5px',
+    fontWeight: '600',
+    fontSize: '1.125rem',
+    marginBottom: '0.75rem',
+    color: '#1e293b',
   };
 
   const eventDetailsStyle = {
-    display: 'flex',
-    gap: '20px',
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: '0.75rem',
     fontSize: '0.9rem',
-    color: '#555',
+    color: '#64748b',
+    marginBottom: '0.5rem',
+  };
+
+  const eventDetailItemStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  };
+
+  const loadingContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '200px',
+    gap: '1rem',
+  };
+
+  const emptyStateStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '200px',
+    color: '#64748b',
+    textAlign: 'center',
+    padding: '2rem',
+  };
+
+  const errorStyle = {
+    backgroundColor: '#fef2f2',
+    color: '#dc2626',
+    padding: '1rem 1.5rem',
+    borderRadius: '0.75rem',
+    border: '1px solid #fecaca',
+    marginBottom: '1rem',
+    fontWeight: '500',
+  };
+
+  const successStyle = {
+    backgroundColor: '#f0fdf4',
+    color: '#166534',
+    padding: '1rem 1.5rem',
+    borderRadius: '0.75rem',
+    border: '1px solid #bbf7d0',
+    marginBottom: '1rem',
+    fontWeight: '500',
   };
 
   const formatDate = (dateString) => {
@@ -191,21 +286,35 @@ const CalendarAgent = () => {
 
   return (
     <div style={containerStyle}>
+      {/* Modern Header */}
       <div style={headerStyle}>
-        <h1>Calendar Planner</h1>
-        <button style={secondaryButtonStyle} onClick={handleBack}>
-          Back to Home
+        <h1 style={titleStyle}>
+          📅 Calendar Planner
+        </h1>
+        <button 
+          className="btn btn-secondary" 
+          onClick={handleBack}
+          style={{ borderRadius: '0.75rem' }}
+        >
+          ← Back to Home
         </button>
       </div>
 
       <div style={contentStyle}>
+        {/* Event Creation Form */}
         <div style={formStyle}>
-          <h2>Create Event</h2>
-          <p>Describe your event in natural language and the AI will create it for you.</p>
-          <p>For example: "Schedule a team meeting next Tuesday at 2pm for 1 hour"</p>
+          <div style={formHeaderStyle}>
+            <h2 style={formTitleStyle}>✨ Create New Event</h2>
+            <p style={formDescriptionStyle}>
+              Describe your event in natural language and AI will create it for you.
+            </p>
+            <p style={formDescriptionStyle}>
+              <strong>Example:</strong> "Schedule a team meeting next Tuesday at 2pm for 1 hour"
+            </p>
+          </div>
           
-          {error && <div style={{ color: 'red' }}>{error}</div>}
-          {success && <div style={{ color: 'green' }}>{success}</div>}
+          {error && <div style={errorStyle}>{error}</div>}
+          {success && <div style={successStyle}>{success}</div>}
           
           <form onSubmit={handleCreateEvent}>
             <input
@@ -213,38 +322,96 @@ const CalendarAgent = () => {
               style={inputStyle}
               value={naturalLanguageRequest}
               onChange={(e) => setNaturalLanguageRequest(e.target.value)}
-              placeholder="Describe your event..."
+              onFocus={(e) => e.target.style.cssText = Object.entries({...inputStyle, ...inputFocusStyle}).map(([k,v]) => `${k.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}:${v}`).join(';')}
+              onBlur={(e) => e.target.style.cssText = Object.entries(inputStyle).map(([k,v]) => `${k.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}:${v}`).join(';')}
+              placeholder="Describe your event (e.g., Meeting with John tomorrow at 3pm)..."
             />
             <button 
               type="submit" 
-              style={buttonStyle}
+              className="btn btn-primary"
               disabled={creatingEvent || !naturalLanguageRequest.trim()}
+              style={{
+                borderRadius: '0.75rem',
+                opacity: (!naturalLanguageRequest.trim() || creatingEvent) ? 0.5 : 1,
+                fontSize: '1rem',
+                fontWeight: '600'
+              }}
             >
-              {creatingEvent ? 'Creating Event...' : 'Create Event'}
+              {creatingEvent ? '⏳ Creating Event...' : '🎯 Create Event'}
             </button>
           </form>
         </div>
 
-        <div>
-          <h2>Upcoming Events</h2>
+        {/* Events List */}
+        <div style={eventListContainerStyle}>
+          <h2 style={eventListHeaderStyle}>
+            📋 Upcoming Events
+            {events.length > 0 && (
+              <span style={{ 
+                background: '#e0f2fe', 
+                color: '#0369a1', 
+                padding: '0.25rem 0.75rem', 
+                borderRadius: '1rem', 
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}>
+                {events.length}
+              </span>
+            )}
+          </h2>
+          
           {loading ? (
-            <div>Loading events...</div>
+            <div style={loadingContainerStyle}>
+              <div className="loading-spinner"></div>
+              <p className="loading-text">Loading your calendar events...</p>
+            </div>
           ) : events.length === 0 ? (
-            <div>No upcoming events found</div>
+            <div style={emptyStateStyle}>
+              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📅</div>
+              <h3 style={{ margin: '0 0 0.5rem', color: '#374151' }}>No upcoming events</h3>
+              <p>Create your first event using the form above!</p>
+            </div>
           ) : (
             <div style={eventListStyle}>
               {events.map((event) => (
-                <div key={event.id} style={eventItemStyle}>
+                <div 
+                  key={event.id} 
+                  style={eventItemStyle}
+                  onMouseEnter={(e) => {
+                    e.target.style.cssText = Object.entries({...eventItemStyle, ...eventItemHoverStyle}).map(([k,v]) => `${k.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}:${v}`).join(';');
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.cssText = Object.entries(eventItemStyle).map(([k,v]) => `${k.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}:${v}`).join(';');
+                  }}
+                >
                   <div style={eventTitleStyle}>{event.title}</div>
                   <div style={eventDetailsStyle}>
-                    <div><strong>Start:</strong> {formatDate(event.start)}</div>
-                    <div><strong>End:</strong> {formatDate(event.end)}</div>
+                    <div style={eventDetailItemStyle}>
+                      <span>🕒</span>
+                      <span><strong>Start:</strong> {formatDate(event.start)}</span>
+                    </div>
+                    <div style={eventDetailItemStyle}>
+                      <span>⏰</span>
+                      <span><strong>End:</strong> {formatDate(event.end)}</span>
+                    </div>
+                    {event.location && (
+                      <div style={eventDetailItemStyle}>
+                        <span>📍</span>
+                        <span><strong>Location:</strong> {event.location}</span>
+                      </div>
+                    )}
                   </div>
-                  {event.location && (
-                    <div><strong>Location:</strong> {event.location}</div>
-                  )}
                   {event.description && (
-                    <div><strong>Description:</strong> {event.description}</div>
+                    <div style={{ 
+                      marginTop: '0.75rem',
+                      padding: '0.75rem',
+                      background: 'rgba(148, 163, 184, 0.1)',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.875rem',
+                      color: '#374151'
+                    }}>
+                      <strong>Description:</strong> {event.description}
+                    </div>
                   )}
                 </div>
               ))}

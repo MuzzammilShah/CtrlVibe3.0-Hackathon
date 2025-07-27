@@ -154,202 +154,350 @@ const EmailAgent = () => {
     navigate('/');
   };
 
-  // Styles
+  // Modern Styles
   const containerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    height: 'calc(100vh - 60px)',
-    padding: '20px',
-    maxWidth: '1200px',
-    margin: '0 auto',
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+    padding: '2rem',
   };
 
   const headerStyle = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '20px',
+    marginBottom: '2rem',
+    background: 'white',
+    padding: '1.5rem 2rem',
+    borderRadius: '1.5rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
+  };
+
+  const titleStyle = {
+    fontSize: '1.75rem',
+    fontWeight: '700',
+    color: '#1e293b',
+    margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
   };
 
   const contentStyle = {
-    display: 'flex',
-    flex: 1,
-    gap: '20px',
-    height: 'calc(100vh - 120px)',
-    overflow: 'hidden',
+    display: 'grid',
+    gridTemplateColumns: '400px 1fr',
+    gap: '2rem',
+    height: 'calc(100vh - 200px)',
+    maxWidth: '1400px',
+    margin: '0 auto',
   };
 
   const emailListStyle = {
-    flex: '0 0 300px',
-    borderRight: '1px solid #e0e0e0',
+    background: 'white',
+    borderRadius: '1.5rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
+    overflow: 'hidden',
+    display: 'flex',
+    flexDirection: 'column',
+  };
+
+  const emailListHeaderStyle = {
+    padding: '1.5rem 2rem',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+    borderBottom: '1px solid #e2e8f0',
+    fontWeight: '600',
+    color: '#1e293b',
+    fontSize: '1.125rem',
+  };
+
+  const emailListContentStyle = {
+    flex: 1,
     overflowY: 'auto',
-    padding: '10px',
+    padding: '1rem',
   };
 
   const emailDetailStyle = {
-    flex: 1,
+    background: 'white',
+    borderRadius: '1.5rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
     display: 'flex',
     flexDirection: 'column',
-    overflowY: 'auto',
+    overflow: 'hidden',
   };
 
   const emailItemStyle = {
-    padding: '10px',
-    borderBottom: '1px solid #e0e0e0',
+    padding: '1.25rem',
+    borderBottom: '1px solid #f1f5f9',
     cursor: 'pointer',
+    borderRadius: '0.75rem',
+    margin: '0.5rem 0',
+    transition: 'all 0.2s ease',
+    background: '#fafafa',
   };
 
   const selectedEmailItemStyle = {
     ...emailItemStyle,
-    backgroundColor: '#f0f7ff',
+    background: 'linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%)',
+    border: '2px solid #0ea5e9',
+    transform: 'translateY(-1px)',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
   };
 
   const emailSenderStyle = {
-    fontWeight: 'bold',
-    marginBottom: '5px',
+    fontWeight: '600',
+    marginBottom: '0.5rem',
+    color: '#1e293b',
+    fontSize: '0.95rem',
   };
 
   const emailSubjectStyle = {
-    marginBottom: '5px',
+    marginBottom: '0.5rem',
+    color: '#374151',
+    fontSize: '0.9rem',
+    fontWeight: '500',
   };
 
   const emailSummaryStyle = {
-    fontSize: '0.9rem',
-    color: '#666',
+    fontSize: '0.85rem',
+    color: '#64748b',
+    lineHeight: '1.4',
+  };
+
+  const emailDetailHeaderStyle = {
+    padding: '1.5rem 2rem',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+    borderBottom: '1px solid #e2e8f0',
+    fontWeight: '600',
+    color: '#1e293b',
+    fontSize: '1.125rem',
+  };
+
+  const emailDetailContentStyle = {
+    flex: 1,
+    overflow: 'auto',
+    padding: '2rem',
   };
 
   const replyContainerStyle = {
-    marginTop: '20px',
+    marginTop: '2rem',
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
+    gap: '1.5rem',
   };
 
   const textareaStyle = {
-    padding: '10px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
+    padding: '1rem 1.25rem',
+    borderRadius: '1rem',
+    border: '2px solid #e2e8f0',
     minHeight: '200px',
     resize: 'vertical',
     fontFamily: 'inherit',
-    fontSize: '1rem',
+    fontSize: '0.95rem',
+    lineHeight: '1.6',
+    transition: 'all 0.2s ease',
+    outline: 'none',
   };
 
   const buttonContainerStyle = {
     display: 'flex',
-    gap: '10px',
-  };
-
-  const buttonStyle = {
-    padding: '8px 16px',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#007bff',
-    color: 'white',
-    cursor: 'pointer',
-  };
-
-  const secondaryButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: '#6c757d',
+    gap: '1rem',
+    flexWrap: 'wrap',
   };
 
   const loadingContainerStyle = {
     display: 'flex',
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    height: '100%',
+    height: '200px',
+    gap: '1rem',
+  };
+
+  const emptyStateStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '300px',
+    color: '#64748b',
+    textAlign: 'center',
+    padding: '2rem',
+  };
+
+  const errorStyle = {
+    backgroundColor: '#fef2f2',
+    color: '#dc2626',
+    padding: '1rem 1.5rem',
+    borderRadius: '0.75rem',
+    border: '1px solid #fecaca',
+    marginBottom: '1.5rem',
+    fontWeight: '500',
   };
 
   return (
     <div style={containerStyle}>
+      {/* Modern Header */}
       <div style={headerStyle}>
-        <h1>Email Assistant</h1>
-        <button style={secondaryButtonStyle} onClick={handleBack}>
-          Back to Home
+        <h1 style={titleStyle}>
+          ✉️ Email Assistant
+        </h1>
+        <button 
+          className="btn btn-secondary" 
+          onClick={handleBack}
+          style={{ borderRadius: '0.75rem' }}
+        >
+          ← Back to Home
         </button>
       </div>
 
-      {error && <div style={{ color: 'red', marginBottom: '20px' }}>{error}</div>}
+      {/* Error Display */}
+      {error && <div style={errorStyle}>{error}</div>}
 
+      {/* Main Content */}
       <div style={contentStyle}>
+        {/* Email List */}
         <div style={emailListStyle}>
-          <h2>Unread Emails</h2>
-          {loading ? (
-            <div style={loadingContainerStyle}>Loading emails...</div>
-          ) : unreadEmails.length === 0 ? (
-            <div>No unread emails found</div>
-          ) : (
-            unreadEmails.map((email) => (
-              <div
-                key={email.id}
-                style={selectedEmail?.id === email.id ? selectedEmailItemStyle : emailItemStyle}
-                onClick={() => handleSelectEmail(email)}
-              >
-                <div style={emailSenderStyle}>{email.sender}</div>
-                <div style={emailSubjectStyle}>{email.subject}</div>
-                <div style={emailSummaryStyle}>{email.summary}</div>
+          <div style={emailListHeaderStyle}>
+            📧 Unread Emails ({unreadEmails.length})
+          </div>
+          <div style={emailListContentStyle}>
+            {loading ? (
+              <div style={loadingContainerStyle}>
+                <div className="loading-spinner"></div>
+                <p className="loading-text">Loading your emails...</p>
               </div>
-            ))
-          )}
+            ) : unreadEmails.length === 0 ? (
+              <div style={emptyStateStyle}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📮</div>
+                <h3 style={{ margin: '0 0 0.5rem', color: '#374151' }}>No unread emails</h3>
+                <p>You're all caught up! Check back later for new messages.</p>
+              </div>
+            ) : (
+              unreadEmails.map((email) => (
+                <div
+                  key={email.id}
+                  style={selectedEmail?.id === email.id ? selectedEmailItemStyle : emailItemStyle}
+                  onClick={() => handleSelectEmail(email)}
+                >
+                  <div style={emailSenderStyle}>{email.sender}</div>
+                  <div style={emailSubjectStyle}>{email.subject}</div>
+                  <div style={emailSummaryStyle}>{email.summary}</div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
 
+        {/* Email Detail */}
         <div style={emailDetailStyle}>
           {selectedEmail ? (
             <>
-              <h2>Email Details</h2>
-              <div style={{ marginBottom: '20px' }}>
-                <div><strong>From:</strong> {selectedEmail.sender}</div>
-                <div><strong>Subject:</strong> {selectedEmail.subject}</div>
-                <div style={{ marginTop: '10px' }}>
-                  <strong>Summary:</strong> {selectedEmail.summary}
-                </div>
+              <div style={emailDetailHeaderStyle}>
+                📄 Email Details
               </div>
-
-              <div style={replyContainerStyle}>
-                <div style={buttonContainerStyle}>
-                  <button 
-                    style={buttonStyle} 
-                    onClick={handleGenerateReply}
-                    disabled={replying}
-                  >
-                    {replying ? 'Generating Reply...' : 'Generate AI Reply'}
-                  </button>
+              <div style={emailDetailContentStyle}>
+                <div style={{ marginBottom: '2rem' }}>
+                  <div style={{ 
+                    background: '#f8fafc', 
+                    padding: '1.5rem', 
+                    borderRadius: '1rem',
+                    border: '1px solid #e2e8f0',
+                    marginBottom: '1.5rem'
+                  }}>
+                    <div style={{ marginBottom: '0.75rem' }}>
+                      <strong style={{ color: '#1e293b' }}>From:</strong> 
+                      <span style={{ marginLeft: '0.5rem', color: '#374151' }}>{selectedEmail.sender}</span>
+                    </div>
+                    <div style={{ marginBottom: '0.75rem' }}>
+                      <strong style={{ color: '#1e293b' }}>Subject:</strong> 
+                      <span style={{ marginLeft: '0.5rem', color: '#374151' }}>{selectedEmail.subject}</span>
+                    </div>
+                    <div>
+                      <strong style={{ color: '#1e293b' }}>Summary:</strong> 
+                      <span style={{ marginLeft: '0.5rem', color: '#374151' }}>{selectedEmail.summary}</span>
+                    </div>
+                  </div>
                 </div>
 
-                {draftReply && (
-                  <>
-                    <div style={{ marginBottom: '10px' }}>
-                      <h4>Generated Reply Preview:</h4>
+                {/* Reply Section */}
+                <div style={replyContainerStyle}>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h3 style={{ margin: 0, color: '#1e293b', fontSize: '1.125rem', fontWeight: '600' }}>
+                      💬 Draft Reply
+                    </h3>
+                    <button
+                      onClick={handleGenerateReply}
+                      disabled={replying}
+                      className="btn btn-primary"
+                      style={{ 
+                        fontSize: '0.875rem',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '0.75rem'
+                      }}
+                    >
+                      {replying ? 'Generating...' : '✨ Generate AI Reply'}
+                    </button>
+                  </div>
+
+                  {draftReply && (
+                    <>
                       <div style={{ 
-                        padding: '10px', 
-                        border: '1px solid #e0e0e0', 
-                        borderRadius: '4px', 
-                        backgroundColor: '#f9f9f9',
-                        marginBottom: '10px'
+                        marginBottom: '1rem',
+                        background: '#f0f9ff',
+                        padding: '1.5rem',
+                        borderRadius: '1rem',
+                        border: '1px solid #e0f2fe'
                       }}>
-                        <MarkdownRenderer content={draftReply} />
+                        <h4 style={{ margin: '0 0 1rem', color: '#1e293b', fontSize: '1rem' }}>Generated Reply Preview:</h4>
+                        <div style={{ 
+                          background: 'white',
+                          padding: '1rem',
+                          borderRadius: '0.75rem',
+                          border: '1px solid #e2e8f0'
+                        }}>
+                          <MarkdownRenderer content={draftReply} />
+                        </div>
                       </div>
-                    </div>
-                    <h4>Edit Reply:</h4>
-                    <textarea
-                      style={textareaStyle}
-                      value={draftReply}
-                      onChange={(e) => setDraftReply(e.target.value)}
-                      placeholder="Edit your reply here..."
-                    />
-                    <div style={buttonContainerStyle}>
-                      <button style={buttonStyle} onClick={handleSendEmail}>
-                        Send Reply
-                      </button>
-                    </div>
-                  </>
-                )}
+                      
+                      <h4 style={{ margin: '0 0 0.75rem', color: '#1e293b', fontSize: '1rem' }}>Edit Reply:</h4>
+                      <textarea
+                        style={textareaStyle}
+                        value={draftReply}
+                        onChange={(e) => setDraftReply(e.target.value)}
+                        placeholder="Edit your reply here..."
+                      />
+                      
+                      <div style={buttonContainerStyle}>
+                        <button 
+                          className="btn btn-primary"
+                          onClick={handleSendEmail}
+                          style={{ borderRadius: '0.75rem' }}
+                        >
+                          📤 Send Reply
+                        </button>
+                        <button
+                          onClick={() => {
+                            setDraftReply('');
+                            setReplyData(null);
+                          }}
+                          className="btn btn-secondary"
+                          style={{ borderRadius: '0.75rem' }}
+                        >
+                          🗑️ Clear
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             </>
           ) : (
-            <div style={loadingContainerStyle}>
-              <p>Select an email to view details</p>
+            <div style={emptyStateStyle}>
+              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📧</div>
+              <h3 style={{ margin: '0 0 0.5rem', color: '#374151' }}>Select an email</h3>
+              <p>Choose an email from the list to view details and draft a reply</p>
             </div>
           )}
         </div>

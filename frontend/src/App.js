@@ -109,12 +109,25 @@ function App() {
     return (
       <div style={{
         display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        fontSize: '1.2rem'
+        background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+        gap: '1.5rem'
       }}>
-        Loading...
+        <div className="loading-spinner" style={{
+          width: '48px',
+          height: '48px',
+          borderWidth: '4px'
+        }}></div>
+        <p style={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          fontWeight: '500'
+        }}>
+          Initializing PA Agent...
+        </p>
       </div>
     );
   }
@@ -123,36 +136,40 @@ function App() {
     <ErrorBoundary>
       <Router>
         <div className="App">
-          {/* Add logout button in header if authenticated */}
+          {/* Modern header */}
           {isAuthenticated && (
             <header style={{
               position: 'fixed',
               top: 0,
               right: 0,
-              padding: '10px 20px',
+              padding: '1rem 1.5rem',
               background: 'rgba(255, 255, 255, 0.95)',
-              borderLeft: '1px solid #ddd',
-              borderBottom: '1px solid #ddd',
+              backdropFilter: 'blur(10px)',
+              borderLeft: '1px solid #e2e8f0',
+              borderBottom: '1px solid #e2e8f0',
+              borderBottomLeftRadius: '1rem',
               zIndex: 1000,
               display: 'flex',
               alignItems: 'center',
-              gap: '10px'
+              gap: '1rem',
+              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
             }}>
               {userInfo && (
-                <span style={{ fontSize: '0.9rem', color: '#666' }}>
+                <span style={{ 
+                  fontSize: '0.875rem', 
+                  color: '#64748b',
+                  fontWeight: '500'
+                }}>
                   {userInfo.user_email || userInfo.email}
                 </span>
               )}
               <button
                 onClick={handleLogout}
+                className="btn btn-danger"
                 style={{
-                  background: '#dc3545',
-                  color: 'white',
-                  border: 'none',
-                  padding: '6px 12px',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem'
+                  padding: '0.5rem 1rem',
+                  fontSize: '0.875rem',
+                  borderRadius: '0.75rem'
                 }}
               >
                 Logout
@@ -261,30 +278,69 @@ function CallbackHandler({ handleCallback }) {
     alignItems: 'center',
     justifyContent: 'center',
     height: '100vh',
-    padding: '20px',
+    padding: '2rem',
     textAlign: 'center',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+    gap: '2rem'
   };
   
   return (
     <div style={containerStyle}>
-      <h2>PA Agent - Authentication</h2>
-      <p style={{ color: isError ? '#dc3545' : '#333' }}>{status}</p>
-      {isError && (
-        <button
-          onClick={() => window.location.href = '/login'}
-          style={{
-            marginTop: '20px',
-            padding: '10px 20px',
-            background: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
-        >
-          Back to Login
-        </button>
-      )}
+      <div style={{
+        background: 'white',
+        borderRadius: '1.5rem',
+        padding: '3rem',
+        boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)',
+        border: '1px solid #f1f5f9',
+        maxWidth: '500px',
+        width: '100%'
+      }}>
+        <h2 style={{
+          fontSize: '1.5rem',
+          fontWeight: '600',
+          marginBottom: '1.5rem',
+          color: '#1e293b'
+        }}>
+          PA Agent - Authentication
+        </h2>
+        
+        <div style={{ 
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          {!isError && (
+            <div className="loading-spinner" style={{
+              width: '32px',
+              height: '32px',
+              borderWidth: '3px'
+            }}></div>
+          )}
+          
+          <p style={{ 
+            color: isError ? '#dc2626' : '#64748b',
+            fontSize: '1rem',
+            fontWeight: '500',
+            lineHeight: '1.5'
+          }}>
+            {status}
+          </p>
+          
+          {isError && (
+            <button
+              onClick={() => window.location.href = '/login'}
+              className="btn btn-primary"
+              style={{
+                marginTop: '1rem',
+                padding: '0.75rem 2rem'
+              }}
+            >
+              Back to Login
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
