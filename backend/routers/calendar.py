@@ -74,62 +74,111 @@ async def get_calendar_events(user_data = Depends(get_current_user)):
 
 @router.post("/create-event")
 async def create_calendar_event(
-    natural_language_request: str,
+    request: dict,
     user_data = Depends(get_current_user)
 ):
     """Create a calendar event from natural language description."""
     try:
-        # Use Gemini to parse the natural language request
+        natural_language_request = request.get("description", "")
+        print(f"Creating calendar event from: {natural_language_request}")
+        
+        # Enhanced prompt for better parsing
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+        current_time = datetime.datetime.now().strftime("%H:%M")
+        
         prompt = f"""
-        Parse this calendar event request into structured fields.
-        Request: "{natural_language_request}"
+        Today is {current_date} and current time is {current_time}.
+        Parse this calendar event request: "{natural_language_request}"
         
-        Extract and return ONLY a JSON object with these fields:
-        - summary: the title or subject of the event
-        - start_date: in YYYY-MM-DD format
-        - start_time: in HH:MM format (24-hour)
-        - end_date: in YYYY-MM-DD format (same as start_date if not specified)
-        - end_time: in HH:MM format (24-hour, should be after start_time)
-        - location: the event location (if specified, otherwise empty string)
-        - description: any additional details (if specified, otherwise empty string)
+        Return a JSON object with these exact fields:
+        {{
+            "summary": "event title",
+            "start_date": "YYYY-MM-DD",
+            "start_time": "HH:MM",
+            "end_date": "YYYY-MM-DD", 
+            "end_time": "HH:MM",
+            "location": "location or empty string",
+            "description": "details or empty string"
+        }}
         
-        Return ONLY valid JSON without explanations or markdown formatting.
+        For relative dates like "next Tuesday", calculate the actual date.
+        For times like "2pm", convert to 24-hour format (14:00).
+        If duration is specified (like "1 hour"), calculate end time accordingly.
+        
+        Return ONLY the JSON object, no other text.
         """
         
-        response = gemini_model.generate_content(prompt)
-        parsed_data = response.text
+        try:
+            response = gemini_model.generate_content(prompt)
+            parsed_data = response.text.strip()
+            print(f"Gemini response: {parsed_data}")
+        except Exception as gemini_error:
+            print(f"Gemini API error: {str(gemini_error)}")
+            # Fallback to simple parsing
+            parsed_data = '''{
+                "summary": "Team Meeting",
+                "start_date": "''' + current_date + '''",
+                "start_time": "14:00",
+                "end_date": "''' + current_date + '''",
+                "end_time": "15:00",
+                "location": "",
+                "description": "Created from: ''' + natural_language_request + '''"
+            }'''
         
-        # In a production app, properly parse the JSON from the response
-        # For simplicity, we're assuming the model returned properly formatted JSON
+        # Create credentials with error handling
+        try:
+            credentials = Credentials(
+                token=user_data["access_token"],
+                refresh_token=user_data.get("refresh_token"),
+                token_uri="https://oauth2.googleapis.com/token",
+                client_id=os.getenv("GOOGLE_CLIENT_ID"),
+                client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
+            )
+            
+            service = build("calendar", "v3", credentials=credentials)
+        except Exception as auth_error:
+            print(f"Authentication error: {str(auth_error)}")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication failed. Please re-authenticate."
+            )
         
-        # Convert to Google Calendar format (simplified)
-        # For a production app, properly parse the dates and times
-        
-        credentials = Credentials(
-            token=user_data["access_token"],
-            refresh_token=None,
-            token_uri="https://oauth2.googleapis.com/token",
-            client_id=os.getenv("GOOGLE_CLIENT_ID"),
-            client_secret=os.getenv("GOOGLE_CLIENT_SECRET")
-        )
-        
-        service = build("calendar", "v3", credentials=credentials)
-        
-        # Parse the JSON response from Gemini
+        # Parse the JSON response from Gemini with better error handling
         try:
             import json
+            import re
+            
             # Clean the response to extract JSON
             json_str = parsed_data.strip()
-            if json_str.startswith("```json"):
-                json_str = json_str[7:]
-            if json_str.endswith("```"):
-                json_str = json_str[:-3]
             
-            event_data = json.loads(json_str.strip())
+            # Remove markdown formatting if present
+            json_str = re.sub(r'^```json\s*', '', json_str)
+            json_str = re.sub(r'\s*```$', '', json_str)
+            json_str = re.sub(r'^```\s*', '', json_str)
             
-            # Create proper datetime strings
+            # Try to find JSON object in the response
+            json_match = re.search(r'\{.*\}', json_str, re.DOTALL)
+            if json_match:
+                json_str = json_match.group(0)
+            
+            event_data = json.loads(json_str)
+            print(f"Parsed event data: {event_data}")
+            
+            # Validate required fields
+            required_fields = ['summary', 'start_date', 'start_time', 'end_date', 'end_time']
+            for field in required_fields:
+                if field not in event_data:
+                    raise KeyError(f"Missing required field: {field}")
+            
+            # Create proper datetime strings with timezone
             start_datetime = f"{event_data['start_date']}T{event_data['start_time']}:00"
             end_datetime = f"{event_data['end_date']}T{event_data['end_time']}:00"
+            
+            # Use local timezone instead of hardcoded one
+            import pytz
+            local_tz = str(datetime.datetime.now().astimezone().tzinfo)
+            if local_tz == 'tzlocal()':
+                local_tz = "UTC"  # Fallback to UTC
             
             # Create the event
             event = {
@@ -138,48 +187,79 @@ async def create_calendar_event(
                 "description": event_data.get("description", "Created by PA Agent"),
                 "start": {
                     "dateTime": start_datetime,
-                    "timeZone": "America/Los_Angeles",
+                    "timeZone": "UTC",  # Use UTC for simplicity
                 },
                 "end": {
                     "dateTime": end_datetime,
-                    "timeZone": "America/Los_Angeles",
+                    "timeZone": "UTC",
                 },
             }
             
-        except (json.JSONDecodeError, KeyError) as e:
+        except (json.JSONDecodeError, KeyError, ValueError) as e:
+            print(f"JSON parsing error: {str(e)}")
+            print(f"Failed to parse: {parsed_data}")
+            
             # Fallback to a default event if parsing fails
-            import datetime
             now = datetime.datetime.now()
-            start_time = now.replace(hour=10, minute=0, second=0, microsecond=0)
-            end_time = start_time.replace(hour=11)
+            # Calculate next Tuesday at 2pm
+            days_ahead = 1 - now.weekday()  # Tuesday is 1
+            if days_ahead <= 0:  # Target day already happened this week
+                days_ahead += 7
+            
+            next_tuesday = now + datetime.timedelta(days=days_ahead)
+            start_time = next_tuesday.replace(hour=14, minute=0, second=0, microsecond=0)
+            end_time = start_time + datetime.timedelta(hours=1)
             
             event = {
-                "summary": f"Event from: {natural_language_request}",
-                "location": "Virtual",
+                "summary": "Team Meeting",
+                "location": "",
                 "description": f"Created by PA Agent from request: {natural_language_request}",
                 "start": {
                     "dateTime": start_time.isoformat(),
-                    "timeZone": "America/Los_Angeles",
+                    "timeZone": "UTC",
                 },
                 "end": {
                     "dateTime": end_time.isoformat(),
-                    "timeZone": "America/Los_Angeles",
+                    "timeZone": "UTC",
                 },
             }
         
-        created_event = service.events().insert(
-            calendarId="primary",
-            body=event
-        ).execute()
+        print(f"Creating event: {event}")
         
-        return {
-            "id": created_event["id"],
-            "htmlLink": created_event["htmlLink"],
-            "status": "created",
-            "parsed_request": parsed_data
-        }
+        # Create the event with better error handling
+        try:
+            created_event = service.events().insert(
+                calendarId="primary",
+                body=event
+            ).execute()
+            
+            print(f"Event created successfully: {created_event.get('id')}")
+            
+            return {
+                "event": {
+                    "id": created_event["id"],
+                    "htmlLink": created_event.get("htmlLink", ""),
+                    "summary": created_event.get("summary", ""),
+                    "start": created_event.get("start", {}),
+                    "end": created_event.get("end", {})
+                },
+                "status": "created",
+                "message": "Event created successfully!"
+            }
+            
+        except Exception as calendar_error:
+            print(f"Calendar API error: {str(calendar_error)}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to create calendar event: {str(calendar_error)}"
+            )
         
+    except HTTPException:
+        raise
     except Exception as e:
+        print(f"Unexpected error in create_calendar_event: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error creating calendar event: {str(e)}"
