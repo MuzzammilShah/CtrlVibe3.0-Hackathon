@@ -11,21 +11,21 @@ router = APIRouter()
 
 # Configure Gemini model
 gemini_model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
+    model_name="gemini-2.0-flash",
     generation_config={
         "temperature": 0.2,
         "top_p": 0.95,
         "top_k": 40,
-        "max_output_tokens": 8192,
+        "max_output_tokens": 2048,
     }
 )
 
 @router.get("/unread")
-async def get_unread_emails(user_info = Depends(get_current_user)):
+async def get_unread_emails(user_data = Depends(get_current_user)):
     """Fetch unread emails and provide summaries."""
     try:
         credentials = Credentials(
-            token=user_info["access_token"],
+            token=user_data["access_token"],
             refresh_token=None,
             token_uri="https://oauth2.googleapis.com/token",
             client_id=os.getenv("GOOGLE_CLIENT_ID"),
@@ -105,14 +105,21 @@ async def get_unread_emails(user_info = Depends(get_current_user)):
 
 @router.post("/draft-reply")
 async def draft_email_reply(
-    message_id: str,
-    tone: str = "professional",
-    user_info = Depends(get_current_user)
+    request: dict,
+    user_data = Depends(get_current_user)
 ):
     """Draft a reply to an email using Gemini."""
+    message_id = request.get("message_id")
+    tone = request.get("tone", "professional")
+    
+    if not message_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="message_id is required"
+        )
     try:
         credentials = Credentials(
-            token=user_info["access_token"],
+            token=user_data["access_token"],
             refresh_token=None,
             token_uri="https://oauth2.googleapis.com/token",
             client_id=os.getenv("GOOGLE_CLIENT_ID"),
@@ -132,6 +139,8 @@ async def draft_email_reply(
         headers = email["payload"]["headers"]
         subject = next((h["value"] for h in headers if h["name"] == "Subject"), "No Subject")
         sender = next((h["value"] for h in headers if h["name"] == "From"), "Unknown Sender")
+        message_id_header = next((h["value"] for h in headers if h["name"] == "Message-ID"), None)
+        references = next((h["value"] for h in headers if h["name"] == "References"), "")
         
         # Extract body content (simplified)
         parts = email["payload"].get("parts", [])
@@ -160,12 +169,26 @@ async def draft_email_reply(
         {body[:3000]}  # Limit to avoid token issues
         
         Draft a complete reply, including a suitable greeting and sign-off.
+        
+        Format your response using markdown for better readability:
+        - Use **bold** for important points
+        - Use bullet points (-) for lists when appropriate
+        - Use proper paragraph breaks for better readability
         """
         
         response = gemini_model.generate_content(prompt)
         draft_reply = response.text
         
-        return {"reply": draft_reply, "subject": f"Re: {subject}", "to": sender}
+        # Build threading headers for proper email threading
+        reply_subject = subject if subject.lower().startswith("re:") else f"Re: {subject}"
+        
+        return {
+            "reply": draft_reply, 
+            "subject": reply_subject, 
+            "to": sender,
+            "in_reply_to": message_id_header,
+            "references": f"{references} {message_id_header}".strip() if references else message_id_header
+        }
         
     except Exception as e:
         raise HTTPException(
@@ -175,15 +198,26 @@ async def draft_email_reply(
 
 @router.post("/send")
 async def send_email(
-    to: str,
-    subject: str,
-    body: str,
-    user_info = Depends(get_current_user)
+    request: dict,
+    user_data = Depends(get_current_user)
 ):
     """Send an email via Gmail API."""
+    to = request.get("to")
+    subject = request.get("subject")
+    body = request.get("body")
+    in_reply_to = request.get("in_reply_to")
+    references = request.get("references")
+    
+    if not to or not subject or not body:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="to, subject, and body are required"
+        )
+    
     try:
+        print(f"Sending email to: {to}, subject: {subject}")
         credentials = Credentials(
-            token=user_info["access_token"],
+            token=user_data["access_token"],
             refresh_token=None,
             token_uri="https://oauth2.googleapis.com/token",
             client_id=os.getenv("GOOGLE_CLIENT_ID"),
@@ -192,10 +226,22 @@ async def send_email(
         
         service = build("gmail", "v1", credentials=credentials)
         
+        # Get user's email address
+        user_profile = service.users().getProfile(userId="me").execute()
+        user_email = user_profile.get("emailAddress")
+        print(f"Sending from: {user_email}")
+        
         # Create message
         message = MIMEText(body)
         message["to"] = to
+        message["from"] = user_email  # Gmail requires the From field to be set
         message["subject"] = subject
+        
+        # Add threading headers for proper email threading
+        if in_reply_to:
+            message["In-Reply-To"] = in_reply_to
+        if references:
+            message["References"] = references
         
         # Encode message
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")
@@ -206,9 +252,13 @@ async def send_email(
             body={"raw": raw_message}
         ).execute()
         
+        print(f"Email sent successfully. Message ID: {sent_message['id']}")
         return {"message_id": sent_message["id"], "status": "sent"}
         
     except Exception as e:
+        print(f"Error sending email: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error sending email: {str(e)}"

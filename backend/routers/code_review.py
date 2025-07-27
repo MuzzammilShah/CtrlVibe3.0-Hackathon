@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Request
 import google.generativeai as genai
 import os
 
@@ -6,23 +6,28 @@ router = APIRouter()
 
 # Configure Gemini model
 gemini_model = genai.GenerativeModel(
-    model_name="gemini-1.5-pro",
+    model_name="gemini-2.0-flash",
     generation_config={
         "temperature": 0.2,
         "top_p": 0.95,
         "top_k": 40,
-        "max_output_tokens": 8192,
+        "max_output_tokens": 2048,
     }
 )
 
 @router.post("/review")
-async def review_code(
-    code: str,
-    language: str,
-    review_focus: str = "general"  # Options: general, security, performance, readability
-):
+async def review_code(request: Request):
     """Review code and provide feedback."""
     try:
+        # Parse request body
+        body = await request.json()
+        code = body.get("code", "")
+        language = body.get("language", "unknown")
+        review_focus = body.get("review_focus", "general")
+        
+        if not code:
+            raise HTTPException(status_code=400, detail="No code provided for review")
+        
         prompt = f"""
         Review the following {language} code with a focus on {review_focus} aspects.
         
@@ -38,13 +43,22 @@ async def review_code(
         4. Suggested code changes or alternatives for identified issues
         5. Overall assessment and recommendations
         
-        Format your review in a structured way with clear sections.
+        Format your review using markdown for better readability:
+        - Use **bold** for important points and headings
+        - Use numbered lists (1., 2., 3.) for structured sections
+        - Use bullet points (-) for sub-items
+        - Use `code snippets` for inline code references
+        - Use ```language blocks``` for code examples
+        - Use proper paragraph breaks for better readability
         """
         
         response = gemini_model.generate_content(prompt)
         review = response.text
         
-        return {"code_review": review}
+        return {
+            "content": review,
+            "code_review": review  # Keep both for compatibility
+        }
         
     except Exception as e:
         raise HTTPException(
@@ -53,13 +67,17 @@ async def review_code(
         )
 
 @router.post("/suggest-refactoring")
-async def suggest_refactoring(
-    code: str,
-    language: str,
-    refactoring_goal: str
-):
+async def suggest_refactoring(request: Request):
     """Suggest refactoring for given code based on a specific goal."""
     try:
+        body = await request.json()
+        code = body.get("code", "")
+        language = body.get("language", "unknown")
+        refactoring_goal = body.get("refactoring_goal", "improve code quality")
+        
+        if not code:
+            raise HTTPException(status_code=400, detail="No code provided for refactoring")
+        
         prompt = f"""
         Analyze the following {language} code and suggest refactoring to achieve the goal: {refactoring_goal}
         
@@ -74,13 +92,22 @@ async def suggest_refactoring(
         3. The refactored code with comments explaining key changes
         4. Benefits of the suggested refactoring
         
-        Format your response in a structured way with clear sections.
+        Format your response using markdown for better readability:
+        - Use **bold** for important points and headings
+        - Use numbered lists (1., 2., 3.) for structured sections
+        - Use bullet points (-) for sub-items
+        - Use `code snippets` for inline code references
+        - Use ```language blocks``` for code examples
+        - Use proper paragraph breaks for better readability
         """
         
         response = gemini_model.generate_content(prompt)
         refactoring = response.text
         
-        return {"refactoring_suggestions": refactoring}
+        return {
+            "content": refactoring,
+            "refactoring_suggestions": refactoring  # Keep both for compatibility
+        }
         
     except Exception as e:
         raise HTTPException(
@@ -89,13 +116,17 @@ async def suggest_refactoring(
         )
 
 @router.post("/explain")
-async def explain_code(
-    code: str,
-    language: str,
-    detail_level: str = "medium"  # Options: basic, medium, detailed
-):
+async def explain_code(request: Request):
     """Explain code functionality in natural language."""
     try:
+        body = await request.json()
+        code = body.get("code", "")
+        language = body.get("language", "unknown")
+        detail_level = body.get("detail_level", "medium")  # Options: basic, medium, detailed
+        
+        if not code:
+            raise HTTPException(status_code=400, detail="No code provided for explanation")
+        
         prompt = f"""
         Explain the following {language} code at a {detail_level} level of detail.
         
@@ -110,13 +141,21 @@ async def explain_code(
         3. A walkthrough of the logic and control flow
         4. Explanations of any complex or non-obvious parts
         
-        Format your explanation in a clear, educational style that would help someone understand this code.
+        Format your explanation using markdown for better readability:
+        - Use **bold** for important points and headings
+        - Use numbered lists (1., 2., 3.) for structured sections
+        - Use bullet points (-) for sub-items
+        - Use `code snippets` for inline code references
+        - Use proper paragraph breaks for better readability
         """
         
         response = gemini_model.generate_content(prompt)
         explanation = response.text
         
-        return {"code_explanation": explanation}
+        return {
+            "content": explanation,
+            "code_explanation": explanation  # Keep both for compatibility
+        }
         
     except Exception as e:
         raise HTTPException(
