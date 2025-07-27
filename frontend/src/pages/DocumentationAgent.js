@@ -135,66 +135,105 @@ const DocumentationAgent = () => {
     }
   };
 
-  // Styles
+    // Modern Styles with consistent layout
   const containerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '20px',
-    maxWidth: '1200px',
-    margin: '0 auto',
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+    padding: '2rem',
+    paddingTop: '5rem', // Add space for fixed header
   };
 
   const headerStyle = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '20px',
+    marginBottom: '2rem',
+    background: 'white',
+    padding: '1.5rem 2rem',
+    borderRadius: '1.5rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
+  };
+
+  const titleStyle = {
+    fontSize: '1.75rem',
+    fontWeight: '700',
+    color: '#1e293b',
+    margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
   };
 
   const tabsStyle = {
     display: 'flex',
-    borderBottom: '1px solid #e0e0e0',
-    marginBottom: '20px',
+    background: 'white',
+    borderRadius: '1rem',
+    padding: '0.5rem',
+    marginBottom: '2rem',
+    boxShadow: '0 2px 4px -1px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
   };
 
   const tabStyle = {
-    padding: '10px 20px',
+    flex: 1,
+    padding: '0.75rem 1.5rem',
     cursor: 'pointer',
-    borderBottom: '2px solid transparent',
+    borderRadius: '0.75rem',
+    textAlign: 'center',
+    fontSize: '0.95rem',
+    fontWeight: '500',
+    color: '#64748b',
+    transition: 'all 0.2s ease',
   };
 
   const activeTabStyle = {
     ...tabStyle,
-    borderBottom: '2px solid #007bff',
-    fontWeight: 'bold',
+    background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+    color: 'white',
+    boxShadow: '0 2px 4px -1px rgb(0 0 0 / 0.1)',
   };
 
   const contentStyle = {
-    display: 'flex',
-    gap: '30px',
+    display: 'grid',
+    gridTemplateColumns: '400px 1fr',
+    gap: '2rem',
+    height: 'calc(100vh - 300px)',
+    maxWidth: '1400px',
+    margin: '0 auto',
   };
 
   const formStyle = {
-    flex: '0 0 40%',
+    background: 'white',
+    borderRadius: '1.5rem',
+    padding: '2rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
     display: 'flex',
     flexDirection: 'column',
-    gap: '15px',
+    gap: '1.5rem',
+    height: 'fit-content',
   };
 
   const inputGroupStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '5px',
+    gap: '0.5rem',
   };
 
   const labelStyle = {
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#1e293b',
+    fontSize: '0.95rem',
   };
 
   const inputStyle = {
-    padding: '10px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
+    padding: '0.75rem 1rem',
+    borderRadius: '0.75rem',
+    border: '2px solid #e2e8f0',
+    fontSize: '0.95rem',
+    transition: 'all 0.2s ease',
+    outline: 'none',
   };
 
   const textareaStyle = {
@@ -204,43 +243,101 @@ const DocumentationAgent = () => {
     fontFamily: 'inherit',
   };
 
-  const buttonStyle = {
-    padding: '10px 16px',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#007bff',
-    color: 'white',
-    cursor: 'pointer',
-    fontSize: '1rem',
-  };
-
-  const secondaryButtonStyle = {
-    ...buttonStyle,
-    backgroundColor: '#6c757d',
-  };
-
   const buttonContainerStyle = {
     display: 'flex',
-    gap: '10px',
+    gap: '1rem',
+    marginTop: '1rem',
   };
 
   const resultStyle = {
-    flex: '0 0 55%',
-    padding: '20px',
-    borderRadius: '8px',
-    border: '1px solid #e0e0e0',
-    backgroundColor: '#f9f9f9',
-    whiteSpace: 'pre-wrap',
-    maxHeight: '600px',
+    background: 'white',
+    borderRadius: '1.5rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+  };
+
+  const resultHeaderStyle = {
+    padding: '1.5rem 2rem',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+    borderBottom: '1px solid #e2e8f0',
+    fontWeight: '600',
+    color: '#1e293b',
+    fontSize: '1.125rem',
+  };
+
+  const resultContentStyle = {
+    flex: 1,
+    padding: '2rem',
     overflowY: 'auto',
+    lineHeight: '1.6',
+  };
+
+  const emptyStateStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
+    color: '#64748b',
+    textAlign: 'center',
+    padding: '2rem',
+  };
+
+  const errorStyle = {
+    backgroundColor: '#fef2f2',
+    color: '#dc2626',
+    padding: '1rem 1.5rem',
+    borderRadius: '0.75rem',
+    border: '1px solid #fecaca',
+    marginBottom: '1rem',
+    fontWeight: '500',
+  };
+
+  const buttonStyle = {
+    backgroundColor: '#0ea5e9',
+    color: 'white',
+    border: 'none',
+    padding: '0.75rem 1.5rem',
+    borderRadius: '0.75rem',
+    fontSize: '0.9rem',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+  };
+
+  const secondaryButtonStyle = {
+    backgroundColor: '#f8fafc',
+    color: '#475569',
+    border: '1px solid #e2e8f0',
+    padding: '0.75rem 1.5rem',
+    borderRadius: '0.75rem',
+    fontSize: '0.9rem',
+    fontWeight: '500',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.5rem',
   };
 
   return (
     <div style={containerStyle}>
       <div style={headerStyle}>
-        <h1>Documentation Assistant</h1>
-        <button style={secondaryButtonStyle} onClick={handleBack}>
-          Back to Home
+        <h1 style={titleStyle}>
+          📄 Documentation Assistant
+        </h1>
+        <button 
+          className="btn btn-secondary" 
+          onClick={handleBack}
+          style={{ borderRadius: '0.75rem' }}
+        >
+          ← Back to Home
         </button>
       </div>
 
@@ -452,14 +549,25 @@ const DocumentationAgent = () => {
         </div>
         
         <div style={resultStyle}>
-          <h2>Generated Content</h2>
-          {loading ? (
-            <div>Generating content...</div>
-          ) : generatedContent ? (
-            <MarkdownRenderer content={generatedContent} />
-          ) : (
-            <div>Fill in the form and generate content to see the result here.</div>
-          )}
+          <div style={resultHeaderStyle}>
+            📄 Generated Documentation
+          </div>
+          <div style={resultContentStyle}>
+            {loading ? (
+              <div style={emptyStateStyle}>
+                <div className="loading-spinner" style={{ marginBottom: '1rem' }}></div>
+                <p>Generating your documentation...</p>
+              </div>
+            ) : generatedContent ? (
+              <MarkdownRenderer content={generatedContent} />
+            ) : (
+              <div style={emptyStateStyle}>
+                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>📄</div>
+                <h3 style={{ margin: '0 0 0.5rem', color: '#374151' }}>Ready to generate</h3>
+                <p>Fill in the form and select a documentation type to get started</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

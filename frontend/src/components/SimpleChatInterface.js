@@ -155,10 +155,10 @@ const welcomeSubtitleStyle = {
 
 const agentCardsContainerStyle = {
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+  gridTemplateColumns: 'repeat(4, 1fr)',
   gap: '1.5rem',
   margin: '3rem auto',
-  maxWidth: '1100px',
+  maxWidth: '1200px',
   padding: '0 2rem',
 };
 

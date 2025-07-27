@@ -49,129 +49,175 @@ const CodeReviewAgent = () => {
     navigate('/');
   };
 
-  // Styles
+  // Modern Styles with consistent layout
   const containerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '20px',
-    maxWidth: '1200px',
-    margin: '0 auto',
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+    padding: '2rem',
+    paddingTop: '5rem', // Add space for fixed header
   };
 
   const headerStyle = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: '20px',
+    marginBottom: '2rem',
+    background: 'white',
+    padding: '1.5rem 2rem',
+    borderRadius: '1.5rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
+  };
+
+  const titleStyle = {
+    fontSize: '1.75rem',
+    fontWeight: '700',
+    color: '#1e293b',
+    margin: 0,
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
   };
 
   const contentStyle = {
-    display: 'flex',
-    gap: '30px',
+    display: 'grid',
+    gridTemplateColumns: '400px 1fr',
+    gap: '2rem',
+    height: 'calc(100vh - 300px)',
+    maxWidth: '1400px',
+    margin: '0 auto',
   };
 
   const formStyle = {
-    flex: '0 0 45%',
+    background: 'white',
+    borderRadius: '1.5rem',
+    padding: '2rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
     display: 'flex',
     flexDirection: 'column',
-    gap: '15px',
+    gap: '1.5rem',
+    height: 'fit-content',
   };
 
   const resultContainerStyle = {
-    flex: '0 0 50%',
+    background: 'white',
+    borderRadius: '1.5rem',
+    boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+    border: '1px solid #f1f5f9',
     display: 'flex',
     flexDirection: 'column',
-    gap: '15px',
+    overflow: 'hidden',
   };
 
   const inputGroupStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '5px',
+    gap: '0.5rem',
   };
 
   const labelStyle = {
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#1e293b',
+    fontSize: '0.95rem',
   };
 
   const selectStyle = {
-    padding: '10px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
+    padding: '0.75rem 1rem',
+    borderRadius: '0.75rem',
+    border: '2px solid #e2e8f0',
+    fontSize: '0.95rem',
+    transition: 'all 0.2s ease',
+    outline: 'none',
+    background: 'white',
   };
 
   const textareaStyle = {
-    padding: '10px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
+    padding: '1rem 1.25rem',
+    borderRadius: '1rem',
+    border: '2px solid #e2e8f0',
     minHeight: '300px',
-    fontFamily: 'monospace',
-    fontSize: '14px',
+    fontFamily: 'JetBrains Mono, Fira Code, monospace',
+    fontSize: '0.9rem',
     resize: 'vertical',
+    transition: 'all 0.2s ease',
+    outline: 'none',
+    lineHeight: '1.5',
   };
 
-  const buttonStyle = {
-    padding: '10px 16px',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#007bff',
-    color: 'white',
-    cursor: 'pointer',
-    fontSize: '1rem',
+  const inputStyle = {
+    padding: '0.75rem 1rem',
+    borderRadius: '0.75rem',
+    border: '2px solid #e2e8f0',
+    fontSize: '0.95rem',
+    transition: 'all 0.2s ease',
+    outline: 'none',
   };
 
-  const secondaryButtonStyle = {
-    padding: '8px 16px',
-    borderRadius: '4px',
-    border: 'none',
-    backgroundColor: '#6c757d',
-    color: 'white',
-    cursor: 'pointer',
+  const resultHeaderStyle = {
+    padding: '1.5rem 2rem',
+    background: 'linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%)',
+    borderBottom: '1px solid #e2e8f0',
+    fontWeight: '600',
+    color: '#1e293b',
+    fontSize: '1.125rem',
   };
 
-  const resultStyle = {
-    padding: '15px',
-    borderRadius: '8px',
-    border: '1px solid #e0e0e0',
-    backgroundColor: '#f9f9f9',
-    fontFamily: 'system-ui, -apple-system, sans-serif',
-    fontSize: '14px',
-    whiteSpace: 'pre-wrap',
-    overflowY: 'auto',
-    maxHeight: '600px',
+  const resultContentStyle = {
     flex: 1,
+    padding: '2rem',
+    overflowY: 'auto',
+    lineHeight: '1.6',
   };
 
-  const radioContainerStyle = {
+  const emptyStateStyle = {
     display: 'flex',
-    gap: '20px',
-    marginBottom: '10px',
-  };
-
-  const radioGroupStyle = {
-    display: 'flex',
+    flexDirection: 'column',
     alignItems: 'center',
-    gap: '5px',
+    justifyContent: 'center',
+    height: '100%',
+    color: '#64748b',
+    textAlign: 'center',
+    padding: '2rem',
+  };
+
+  const errorStyle = {
+    backgroundColor: '#fef2f2',
+    color: '#dc2626',
+    padding: '1rem 1.5rem',
+    borderRadius: '0.75rem',
+    border: '1px solid #fecaca',
+    marginBottom: '1rem',
+    fontWeight: '500',
   };
 
   return (
     <div style={containerStyle}>
+      {/* Modern Header */}
       <div style={headerStyle}>
-        <h1>Code Review Assistant</h1>
-        <button style={secondaryButtonStyle} onClick={handleBack}>
-          Back to Home
+        <h1 style={titleStyle}>
+          💻 Code Review Assistant
+        </h1>
+        <button 
+          className="btn btn-secondary" 
+          onClick={handleBack}
+          style={{ borderRadius: '0.75rem' }}
+        >
+          ← Back to Home
         </button>
       </div>
 
-      {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
-
+      {/* Consistent Two-Column Layout */}
       <div style={contentStyle}>
+        {/* Left Column - Form (Fixed Width) */}
         <div style={formStyle}>
+          {error && <div style={errorStyle}>{error}</div>}
+          
           <form onSubmit={handleSubmit}>
             <div style={inputGroupStyle}>
               <label style={labelStyle}>What would you like to do?</label>
-              <div style={radioContainerStyle}>
-                <div style={radioGroupStyle}>
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <input
                     type="radio"
                     id="review"
@@ -180,10 +226,9 @@ const CodeReviewAgent = () => {
                     checked={reviewType === 'review'}
                     onChange={() => setReviewType('review')}
                   />
-                  <label htmlFor="review">Code Review</label>
+                  <label htmlFor="review" style={{ fontWeight: 'normal', fontSize: '0.9rem' }}>Review Code</label>
                 </div>
-                
-                <div style={radioGroupStyle}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <input
                     type="radio"
                     id="refactor"
@@ -192,10 +237,9 @@ const CodeReviewAgent = () => {
                     checked={reviewType === 'refactor'}
                     onChange={() => setReviewType('refactor')}
                   />
-                  <label htmlFor="refactor">Refactoring Suggestion</label>
+                  <label htmlFor="refactor" style={{ fontWeight: 'normal', fontSize: '0.9rem' }}>Suggest Refactoring</label>
                 </div>
-                
-                <div style={radioGroupStyle}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <input
                     type="radio"
                     id="explain"
@@ -204,14 +248,14 @@ const CodeReviewAgent = () => {
                     checked={reviewType === 'explain'}
                     onChange={() => setReviewType('explain')}
                   />
-                  <label htmlFor="explain">Code Explanation</label>
+                  <label htmlFor="explain" style={{ fontWeight: 'normal', fontSize: '0.9rem' }}>Explain Code</label>
                 </div>
               </div>
             </div>
 
             <div style={inputGroupStyle}>
               <label style={labelStyle}>Programming Language</label>
-              <select 
+              <select
                 style={selectStyle}
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
@@ -236,7 +280,7 @@ const CodeReviewAgent = () => {
             {reviewType === 'review' && (
               <div style={inputGroupStyle}>
                 <label style={labelStyle}>Review Focus</label>
-                <select 
+                <select
                   style={selectStyle}
                   value={reviewFocus}
                   onChange={(e) => setReviewFocus(e.target.value)}
@@ -255,7 +299,7 @@ const CodeReviewAgent = () => {
                 <label style={labelStyle}>Refactoring Goal</label>
                 <input
                   type="text"
-                  style={{...selectStyle, width: '100%'}}
+                  style={inputStyle}
                   value={refactoringGoal}
                   onChange={(e) => setRefactoringGoal(e.target.value)}
                   placeholder="E.g., Improve performance, reduce complexity, DRY"
@@ -266,7 +310,7 @@ const CodeReviewAgent = () => {
             {reviewType === 'explain' && (
               <div style={inputGroupStyle}>
                 <label style={labelStyle}>Detail Level</label>
-                <select 
+                <select
                   style={selectStyle}
                   value={detailLevel}
                   onChange={(e) => setDetailLevel(e.target.value)}
@@ -279,35 +323,54 @@ const CodeReviewAgent = () => {
             )}
 
             <div style={inputGroupStyle}>
-              <label style={labelStyle}>Enter Your Code</label>
+              <label style={labelStyle}>Your Code</label>
               <textarea
                 style={textareaStyle}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="Paste your code here..."
+                required
               />
             </div>
 
             <button 
               type="submit" 
-              style={buttonStyle}
+              className="btn btn-primary"
               disabled={loading}
+              style={{ borderRadius: '0.75rem', width: '100%', marginTop: '1rem' }}
             >
-              {loading ? 'Processing...' : reviewType === 'review' ? 'Review Code' : 
-                reviewType === 'refactor' ? 'Suggest Refactoring' : 'Explain Code'}
+              {loading ? (
+                reviewType === 'review' ? '⏳ Reviewing...' : 
+                reviewType === 'refactor' ? '⏳ Refactoring...' : '⏳ Explaining...'
+              ) : (
+                reviewType === 'review' ? '🔍 Review Code' : 
+                reviewType === 'refactor' ? '🔧 Suggest Refactoring' : '📖 Explain Code'
+              )}
             </button>
           </form>
         </div>
 
+        {/* Right Column - Results (Fixed Width) */}
         <div style={resultContainerStyle}>
-          <h2>Results</h2>
-          <div style={resultStyle}>
+          <div style={resultHeaderStyle}>
+            {reviewType === 'review' && '🔍 Code Review Results'}
+            {reviewType === 'refactor' && '🔧 Refactoring Suggestions'}
+            {reviewType === 'explain' && '📖 Code Explanation'}
+          </div>
+          <div style={resultContentStyle}>
             {loading ? (
-              <div>Analyzing code...</div>
+              <div style={emptyStateStyle}>
+                <div className="loading-spinner" style={{ marginBottom: '1rem' }}></div>
+                <p>Analyzing your code...</p>
+              </div>
             ) : result ? (
               <MarkdownRenderer content={result} />
             ) : (
-              <div>Submit your code to see results here.</div>
+              <div style={emptyStateStyle}>
+                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>💻</div>
+                <h3 style={{ margin: '0 0 0.5rem', color: '#374151' }}>Ready to analyze</h3>
+                <p>Enter your code and select an analysis type to get started</p>
+              </div>
             )}
           </div>
         </div>

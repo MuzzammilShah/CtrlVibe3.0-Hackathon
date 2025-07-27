@@ -85,10 +85,10 @@ const googleLogoStyle = {
 
 const featureListStyle = {
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-  gap: '2rem',
+  gridTemplateColumns: 'repeat(4, 1fr)',
+  gap: '1.5rem',
   margin: '4rem 0',
-  maxWidth: '1000px',
+  maxWidth: '1200px',
   width: '100%',
 };
 
