@@ -45,8 +45,12 @@ export const emailService = {
     const response = await api.post('/email/draft-reply', { message_id: messageId, tone });
     return response.data;
   },
-  sendEmail: async (to, subject, body) => {
-    const response = await api.post('/email/send', { to, subject, body });
+  sendEmail: async (to, subject, body, inReplyTo = null, references = null) => {
+    const requestBody = { to, subject, body };
+    if (inReplyTo) requestBody.in_reply_to = inReplyTo;
+    if (references) requestBody.references = references;
+    
+    const response = await api.post('/email/send', requestBody);
     return response.data;
   },
 };

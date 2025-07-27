@@ -8,6 +8,7 @@ const EmailAgent = () => {
   const [error, setError] = useState('');
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [draftReply, setDraftReply] = useState('');
+  const [replyData, setReplyData] = useState(null); // Store full reply data including threading info
   const [replying, setReplying] = useState(false);
   const navigate = useNavigate();
 
@@ -48,6 +49,7 @@ const EmailAgent = () => {
   const handleSelectEmail = (email) => {
     setSelectedEmail(email);
     setDraftReply('');
+    setReplyData(null);
     setReplying(false);
   };
 
@@ -65,6 +67,7 @@ const EmailAgent = () => {
       const data = await emailService.draftReply(selectedEmail.id);
       console.log('Reply generation response:', data);
       
+      setReplyData(data); // Store the full reply data
       setDraftReply(data.reply || data.draft_reply || '');
       setReplying(false);
       
@@ -91,22 +94,58 @@ const EmailAgent = () => {
   };
 
   const handleSendEmail = async () => {
-    if (!selectedEmail || !draftReply) return;
+    if (!selectedEmail || !draftReply || !replyData) {
+      setError('Please select an email and generate a reply first.');
+      return;
+    }
     
     try {
-      await emailService.sendEmail(
-        selectedEmail.sender, 
-        `Re: ${selectedEmail.subject}`, 
-        draftReply
+      setError('');
+      console.log('Sending email reply...', {
+        to: replyData.to,
+        subject: replyData.subject,
+        bodyLength: draftReply.length,
+        threading: {
+          in_reply_to: replyData.in_reply_to,
+          references: replyData.references
+        }
+      });
+      
+      const response = await emailService.sendEmail(
+        replyData.to, 
+        replyData.subject, 
+        draftReply,
+        replyData.in_reply_to,
+        replyData.references
       );
+      
+      console.log('Email sent successfully:', response);
+      
+      // Show success message
+      alert('Email sent successfully!');
       
       // Reset state and fetch emails again
       setSelectedEmail(null);
       setDraftReply('');
+      setReplyData(null);
       fetchUnreadEmails();
     } catch (err) {
       console.error('Error sending email:', err);
-      setError('Failed to send email.');
+      
+      let errorMessage = 'Failed to send email.';
+      if (err.response?.status === 401) {
+        errorMessage = 'Authentication failed. Please re-authenticate with Google.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'Access denied. Please check your Gmail permissions.';
+      } else if (err.response?.status === 400) {
+        errorMessage = err.response?.data?.detail || 'Invalid email data.';
+      } else if (err.code === 'ECONNABORTED') {
+        errorMessage = 'Request timed out. Please try again.';
+      } else if (err.response?.data?.detail) {
+        errorMessage = err.response.data.detail;
+      }
+      
+      setError(errorMessage);
     }
   };
 

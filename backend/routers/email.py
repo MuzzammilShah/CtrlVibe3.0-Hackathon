@@ -139,6 +139,8 @@ async def draft_email_reply(
         headers = email["payload"]["headers"]
         subject = next((h["value"] for h in headers if h["name"] == "Subject"), "No Subject")
         sender = next((h["value"] for h in headers if h["name"] == "From"), "Unknown Sender")
+        message_id_header = next((h["value"] for h in headers if h["name"] == "Message-ID"), None)
+        references = next((h["value"] for h in headers if h["name"] == "References"), "")
         
         # Extract body content (simplified)
         parts = email["payload"].get("parts", [])
@@ -172,7 +174,16 @@ async def draft_email_reply(
         response = gemini_model.generate_content(prompt)
         draft_reply = response.text
         
-        return {"reply": draft_reply, "subject": f"Re: {subject}", "to": sender}
+        # Build threading headers for proper email threading
+        reply_subject = subject if subject.lower().startswith("re:") else f"Re: {subject}"
+        
+        return {
+            "reply": draft_reply, 
+            "subject": reply_subject, 
+            "to": sender,
+            "in_reply_to": message_id_header,
+            "references": f"{references} {message_id_header}".strip() if references else message_id_header
+        }
         
     except Exception as e:
         raise HTTPException(
@@ -182,13 +193,24 @@ async def draft_email_reply(
 
 @router.post("/send")
 async def send_email(
-    to: str,
-    subject: str,
-    body: str,
+    request: dict,
     user_data = Depends(get_current_user)
 ):
     """Send an email via Gmail API."""
+    to = request.get("to")
+    subject = request.get("subject")
+    body = request.get("body")
+    in_reply_to = request.get("in_reply_to")
+    references = request.get("references")
+    
+    if not to or not subject or not body:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="to, subject, and body are required"
+        )
+    
     try:
+        print(f"Sending email to: {to}, subject: {subject}")
         credentials = Credentials(
             token=user_data["access_token"],
             refresh_token=None,
@@ -199,10 +221,22 @@ async def send_email(
         
         service = build("gmail", "v1", credentials=credentials)
         
+        # Get user's email address
+        user_profile = service.users().getProfile(userId="me").execute()
+        user_email = user_profile.get("emailAddress")
+        print(f"Sending from: {user_email}")
+        
         # Create message
         message = MIMEText(body)
         message["to"] = to
+        message["from"] = user_email  # Gmail requires the From field to be set
         message["subject"] = subject
+        
+        # Add threading headers for proper email threading
+        if in_reply_to:
+            message["In-Reply-To"] = in_reply_to
+        if references:
+            message["References"] = references
         
         # Encode message
         raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode("utf-8")
@@ -213,9 +247,13 @@ async def send_email(
             body={"raw": raw_message}
         ).execute()
         
+        print(f"Email sent successfully. Message ID: {sent_message['id']}")
         return {"message_id": sent_message["id"], "status": "sent"}
         
     except Exception as e:
+        print(f"Error sending email: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error sending email: {str(e)}"
