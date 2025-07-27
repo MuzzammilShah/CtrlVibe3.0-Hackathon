@@ -105,11 +105,18 @@ async def get_unread_emails(user_data = Depends(get_current_user)):
 
 @router.post("/draft-reply")
 async def draft_email_reply(
-    message_id: str,
-    tone: str = "professional",
+    request: dict,
     user_data = Depends(get_current_user)
 ):
     """Draft a reply to an email using Gemini."""
+    message_id = request.get("message_id")
+    tone = request.get("tone", "professional")
+    
+    if not message_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="message_id is required"
+        )
     try:
         credentials = Credentials(
             token=user_data["access_token"],

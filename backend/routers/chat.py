@@ -3,6 +3,7 @@ from fastapi.responses import StreamingResponse
 import google.generativeai as genai
 import json
 import os
+import datetime
 from typing import List, Dict, Any
 import asyncio
 
@@ -82,33 +83,60 @@ async def chat_stream(request: Request):
         
         print(f"Generated response: {response_text[:100]}...")
         
-        # Return a streaming response in the exact format Vercel AI SDK expects
+        # Return streaming response in the exact format Vercel AI SDK expects
         def generate_stream():
-            # Send response in word chunks for better streaming effect
-            words = response_text.split()
-            for i, word in enumerate(words):
-                # Add space except for the first word
-                content = word if i == 0 else f" {word}"
-                
-                data = {
+            try:
+                # Use the already generated response_text from above
+                # Send the complete response as a single chunk to avoid parsing issues
+                chunk_data = {
+                    "id": "chatcmpl-123",
+                    "object": "chat.completion.chunk",
+                    "created": int(datetime.datetime.now().timestamp()),
+                    "model": "gemini-2.0-flash",
                     "choices": [{
+                        "index": 0,
                         "delta": {
-                            "content": content
+                            "content": response_text
                         },
                         "finish_reason": None
                     }]
                 }
-                yield f"data: {json.dumps(data)}\n\n"
-            
-            # Send final chunk
-            final_data = {
-                "choices": [{
-                    "delta": {},
-                    "finish_reason": "stop"
-                }]
-            }
-            yield f"data: {json.dumps(final_data)}\n\n"
-            yield "data: [DONE]\n\n"
+                
+                yield f"data: {json.dumps(chunk_data)}\n\n"
+                
+                # Send final chunk with finish_reason
+                final_chunk = {
+                    "id": "chatcmpl-123",
+                    "object": "chat.completion.chunk",
+                    "created": int(datetime.datetime.now().timestamp()),
+                    "model": "gemini-2.0-flash",
+                    "choices": [{
+                        "index": 0,
+                        "delta": {},
+                        "finish_reason": "stop"
+                    }]
+                }
+                yield f"data: {json.dumps(final_chunk)}\n\n"
+                yield "data: [DONE]\n\n"
+                
+            except Exception as e:
+                print(f"Error in stream generation: {e}")
+                # Send error in the expected format
+                error_chunk = {
+                    "id": "chatcmpl-123",
+                    "object": "chat.completion.chunk",
+                    "created": int(datetime.datetime.now().timestamp()),
+                    "model": "gemini-2.0-flash",
+                    "choices": [{
+                        "index": 0,
+                        "delta": {
+                            "content": f"Error: {str(e)}"
+                        },
+                        "finish_reason": "stop"
+                    }]
+                }
+                yield f"data: {json.dumps(error_chunk)}\n\n"
+                yield "data: [DONE]\n\n"
         
         return StreamingResponse(
             generate_stream(),
@@ -116,7 +144,6 @@ async def chat_stream(request: Request):
             headers={
                 "Cache-Control": "no-cache",
                 "Connection": "keep-alive",
-                "Content-Type": "text/event-stream",
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
                 "Access-Control-Allow-Headers": "Content-Type, Authorization",

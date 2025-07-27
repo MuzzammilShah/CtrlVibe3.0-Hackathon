@@ -13,11 +13,12 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 app = FastAPI(title="PA Agent API", description="Backend for PA Agent - Work Buddy")
 
 # Configure CORS
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
