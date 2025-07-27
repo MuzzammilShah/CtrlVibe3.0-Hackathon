@@ -169,6 +169,11 @@ async def draft_email_reply(
         {body[:3000]}  # Limit to avoid token issues
         
         Draft a complete reply, including a suitable greeting and sign-off.
+        
+        Format your response using markdown for better readability:
+        - Use **bold** for important points
+        - Use bullet points (-) for lists when appropriate
+        - Use proper paragraph breaks for better readability
         """
         
         response = gemini_model.generate_content(prompt)

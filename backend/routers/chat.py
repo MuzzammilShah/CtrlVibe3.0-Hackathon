@@ -72,7 +72,19 @@ async def chat_stream(request: Request):
         
         # Generate response using Gemini with quota error handling
         try:
-            response = gemini_model.generate_content(last_message)
+            # Add system prompt for better formatting
+            enhanced_prompt = f"""You are a helpful PA (Personal Assistant) agent designed to help professionals with various work tasks. 
+
+When responding:
+- Use **bold** for important points and headings
+- Use bullet points (-) for lists and key information
+- Use numbered lists (1., 2., 3.) for step-by-step instructions
+- Use proper paragraph breaks for better readability
+- Be professional but friendly in tone
+
+User message: {last_message}"""
+            
+            response = gemini_model.generate_content(enhanced_prompt)
             response_text = response.text
         except Exception as gemini_error:
             # Handle quota exceeded errors gracefully

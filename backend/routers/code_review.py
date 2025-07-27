@@ -43,7 +43,13 @@ async def review_code(request: Request):
         4. Suggested code changes or alternatives for identified issues
         5. Overall assessment and recommendations
         
-        Format your review in a structured way with clear sections.
+        Format your review using markdown for better readability:
+        - Use **bold** for important points and headings
+        - Use numbered lists (1., 2., 3.) for structured sections
+        - Use bullet points (-) for sub-items
+        - Use `code snippets` for inline code references
+        - Use ```language blocks``` for code examples
+        - Use proper paragraph breaks for better readability
         """
         
         response = gemini_model.generate_content(prompt)
@@ -86,7 +92,13 @@ async def suggest_refactoring(request: Request):
         3. The refactored code with comments explaining key changes
         4. Benefits of the suggested refactoring
         
-        Format your response in a structured way with clear sections.
+        Format your response using markdown for better readability:
+        - Use **bold** for important points and headings
+        - Use numbered lists (1., 2., 3.) for structured sections
+        - Use bullet points (-) for sub-items
+        - Use `code snippets` for inline code references
+        - Use ```language blocks``` for code examples
+        - Use proper paragraph breaks for better readability
         """
         
         response = gemini_model.generate_content(prompt)
@@ -129,7 +141,12 @@ async def explain_code(request: Request):
         3. A walkthrough of the logic and control flow
         4. Explanations of any complex or non-obvious parts
         
-        Format your explanation in a clear, educational style that would help someone understand this code.
+        Format your explanation using markdown for better readability:
+        - Use **bold** for important points and headings
+        - Use numbered lists (1., 2., 3.) for structured sections
+        - Use bullet points (-) for sub-items
+        - Use `code snippets` for inline code references
+        - Use proper paragraph breaks for better readability
         """
         
         response = gemini_model.generate_content(prompt)

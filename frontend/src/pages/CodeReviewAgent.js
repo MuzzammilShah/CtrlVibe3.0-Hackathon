@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { codeReviewService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { MarkdownRenderer } from '../utils/markdown';
 
 const CodeReviewAgent = () => {
   const [code, setCode] = useState('');
@@ -304,7 +305,7 @@ const CodeReviewAgent = () => {
             {loading ? (
               <div>Analyzing code...</div>
             ) : result ? (
-              <div>{result}</div>
+              <MarkdownRenderer content={result} />
             ) : (
               <div>Submit your code to see results here.</div>
             )}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { emailService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { MarkdownRenderer } from '../utils/markdown';
 
 const EmailAgent = () => {
   const [unreadEmails, setUnreadEmails] = useState([]);
@@ -318,6 +319,19 @@ const EmailAgent = () => {
 
                 {draftReply && (
                   <>
+                    <div style={{ marginBottom: '10px' }}>
+                      <h4>Generated Reply Preview:</h4>
+                      <div style={{ 
+                        padding: '10px', 
+                        border: '1px solid #e0e0e0', 
+                        borderRadius: '4px', 
+                        backgroundColor: '#f9f9f9',
+                        marginBottom: '10px'
+                      }}>
+                        <MarkdownRenderer content={draftReply} />
+                      </div>
+                    </div>
+                    <h4>Edit Reply:</h4>
                     <textarea
                       style={textareaStyle}
                       value={draftReply}

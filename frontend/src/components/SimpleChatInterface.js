@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { MarkdownRenderer } from '../utils/markdown';
 
 // Styling for chat interface - matching original ChatInterface
 const chatContainerStyle = {
@@ -301,7 +302,13 @@ const SimpleChatInterface = () => {
               }
             >
               <strong>{message.role === 'user' ? 'You' : 'PA Agent'}:</strong>
-              <div style={{ marginTop: '4px' }}>{message.content}</div>
+              <div style={{ marginTop: '4px' }}>
+                {message.role === 'user' ? (
+                  message.content
+                ) : (
+                  <MarkdownRenderer content={message.content} />
+                )}
+              </div>
             </div>
           ))}
           

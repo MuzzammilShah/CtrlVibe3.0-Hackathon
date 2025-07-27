@@ -43,7 +43,12 @@ async def generate_project_plan(request: Request):
         6. Risk Management
         7. Success Metrics
         
-        Format the plan as a structured document with clear headings and bullet points where appropriate.
+        Format your response using markdown for better readability:
+        - Use **bold** for important headings and key points
+        - Use numbered lists (1., 2., 3.) for main sections
+        - Use bullet points (-) for sub-items and details
+        - Use proper paragraph breaks for better readability
+        - Use tables where appropriate for timelines and resource allocation
         """
         
         response = gemini_model.generate_content(prompt)
@@ -82,7 +87,12 @@ async def generate_report_template(request: Request):
         2. 2-3 bullet points of example content or key points to address
         3. Any relevant formatting suggestions
         
-        Format the template as a structured document with clear headings and placeholder text.
+        Format your response using markdown for better readability:
+        - Use **bold** for section headings and important points
+        - Use numbered lists (1., 2., 3.) for main sections
+        - Use bullet points (-) for sub-items and examples
+        - Use proper paragraph breaks for better readability
+        - Include placeholders in [brackets] for content to be filled in
         """
         
         response = gemini_model.generate_content(prompt)
@@ -117,7 +127,12 @@ async def generate_presentation_outline(request: Request):
         3. Suggestions for visuals or data to include
         4. Estimated time allocation for each section
         
-        Format the outline as a structured document with clear slide numbers, titles, and content suggestions.
+        Format your response using markdown for better readability:
+        - Use **bold** for slide titles and important headings
+        - Use numbered lists (1., 2., 3.) for slide numbers and main sections
+        - Use bullet points (-) for slide content and suggestions
+        - Use proper paragraph breaks for better readability
+        - Include time estimates for each section
         """
         
         response = gemini_model.generate_content(prompt)

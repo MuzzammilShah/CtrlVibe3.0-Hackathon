@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { documentationService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { MarkdownRenderer } from '../utils/markdown';
 
 const DocumentationAgent = () => {
   const [activeTab, setActiveTab] = useState('projectPlan');
@@ -455,7 +456,7 @@ const DocumentationAgent = () => {
           {loading ? (
             <div>Generating content...</div>
           ) : generatedContent ? (
-            <div>{generatedContent}</div>
+            <MarkdownRenderer content={generatedContent} />
           ) : (
             <div>Fill in the form and generate content to see the result here.</div>
           )}
